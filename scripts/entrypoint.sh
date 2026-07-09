@@ -173,8 +173,8 @@ write_sync_env
 
 # Default enabled_langs.json (DE, EN, NL) if not yet set by user via UI
 if [ ! -f /app/data/enabled_langs.json ]; then
-    echo '["de","en","nl"]' > /app/data/enabled_langs.json
-    echo "[entrypoint] enabled_langs.json angelegt (Standard: de, en, nl)."
+    echo '["en"]' > /app/data/enabled_langs.json
+    echo "[entrypoint] enabled_langs.json angelegt (Standard: en)."
 fi
 
 sync_config_languages_from_manifest() {

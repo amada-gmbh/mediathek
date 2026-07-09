@@ -29,7 +29,7 @@
   const TABLE_LINK_LANGS = ['de', 'en', 'nl'];
   const VIEW_MODE_KEY = 'mediathek_view_mode';
   const ENABLED_LANGS_KEY = 'mediathek_enabled_langs';
-  const DEFAULT_ENABLED_LANGS = ['de', 'en', 'nl'];
+  const DEFAULT_ENABLED_LANGS = ['en'];
   const LANG_FLAGS = {
     de: '🇩🇪', en: '🇬🇧', nl: '🇳🇱', fr: '🇫🇷', it: '🇮🇹', pl: '🇵🇱', hu: '🇭🇺',
     dk: '🇩🇰', no: '🇳🇴',
@@ -467,10 +467,8 @@
   };
 
   function getActiveLangs() {
-    const available = state.availableLangs.length ? state.availableLangs : ALL_LANGS;
-    if (!state.enabledLangs.length) return available;
-    const enabled = available.filter((lang) => state.enabledLangs.includes(lang));
-    return enabled.length ? enabled : [available[0]];
+    if (state.enabledLangs.length) return state.enabledLangs;
+    return DEFAULT_ENABLED_LANGS.filter((l) => ALL_LANGS.includes(l));
   }
 
   function applyActiveLangs(langs) {
@@ -480,14 +478,7 @@
       state.availableLangs = [...ALL_LANGS];
     }
     if (!state.enabledLangs.length) {
-      const defaults = DEFAULT_ENABLED_LANGS.filter((lang) => state.availableLangs.includes(lang));
-      state.enabledLangs = defaults.length ? defaults : [state.availableLangs[0]];
-    } else {
-      state.enabledLangs = state.enabledLangs.filter((lang) => state.availableLangs.includes(lang));
-      if (!state.enabledLangs.length && state.availableLangs.length) {
-        const defaults = DEFAULT_ENABLED_LANGS.filter((lang) => state.availableLangs.includes(lang));
-        state.enabledLangs = defaults.length ? defaults : [state.availableLangs[0]];
-      }
+      state.enabledLangs = [...DEFAULT_ENABLED_LANGS];
     }
     if (!getActiveLangs().includes(state.uiLang)) {
       state.uiLang = getActiveLangs()[0] || 'en';
