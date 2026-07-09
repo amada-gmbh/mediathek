@@ -416,7 +416,8 @@
   function updateModalEuLink(brochure, lang) {
     const urlEl = $('#qr-url');
     const copyBtn = $('#modal-copy-link');
-    const qrUrl = resolveModalSourceUrl(brochure, lang);
+    const rawUrl = resolveModalSourceUrl(brochure, lang);
+    const qrUrl = rawUrl && isSafeHttpUrl(rawUrl) ? rawUrl : null;
 
     if (qrUrl) {
       urlEl.textContent = qrUrl;
@@ -563,6 +564,9 @@
       const cfg = await fetchJson('/data/config.json');
       const ss = cfg.screensaver || {};
       state.screensaver.videoUrl = (ss.video_url || '').trim();
+      if (state.screensaver.videoUrl && !isSafeLocalPath(state.screensaver.videoUrl)) {
+        state.screensaver.videoUrl = '';
+      }
       state.screensaver.enabled = !!(ss.enabled && state.screensaver.videoUrl);
       const minutes = parseInt(ss.timeout_minutes, 10);
       state.screensaver.timeoutMs = (Number.isFinite(minutes) && minutes > 0 ? minutes : 5) * 60 * 1000;
@@ -582,7 +586,7 @@
     const logo = $('#company-logo');
     const name = state.branding.companyName;
     const url = state.branding.logoUrl;
-    if (logo && url) {
+    if (logo && url && isSafeAssetUrl(url)) {
       logo.src = url + (url.includes('?') ? '&' : '?') + 'v=' + APP_VERSION;
       logo.alt = name || '';
       logo.classList.remove('hidden');
@@ -1054,6 +1058,10 @@
       td.innerHTML = `<span class="brochure-table__empty">${escapeHtml(t('link_missing'))}</span>`;
       return td;
     }
+    if (!isSafeHttpUrl(url)) {
+      td.textContent = t('link_missing');
+      return td;
+    }
     const wrap = document.createElement('div');
     wrap.className = 'link-cell-inner';
     const link = document.createElement('a');
@@ -1288,6 +1296,25 @@
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
+  }
+
+  function isSafeHttpUrl(url) {
+    if (!url || typeof url !== 'string') return false;
+    try {
+      const parsed = new URL(url);
+      return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function isSafeLocalPath(path) {
+    return typeof path === 'string' && path.startsWith('/') && !path.startsWith('//') && !path.includes('..');
+  }
+
+  function isSafeAssetUrl(url) {
+    if (!url) return false;
+    return isSafeLocalPath(url) || isSafeHttpUrl(url);
   }
 
   function renderBrochures() {

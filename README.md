@@ -1,110 +1,344 @@
-# Broschüren-Mediathek
+# Brochure Library (Mediathek)
 
-**Release 1.2.0** – Touch-Kiosk für Broschüren-PDFs, Docker/Portainer, mehrsprachig, offline-fähig.
+**Version 1.3.0** — Touch-friendly brochure kiosk for showrooms and offices. Runs in Docker, syncs PDFs from a configurable public website, and works offline after the first sync.
 
-Generischer Open-Source-Stack: Crawl-Quelle, Logo und Firmenname werden per Umgebungsvariablen gesetzt. Im Repo liegt ein **AMADA-Beispiel** in `.env.example`.
+This is a generic open-source stack: crawl source, logo, and company name are set via environment variables. The repository includes an **AMADA EU example** in `.env.example`.
+
+---
+
+## What does it do?
+
+1. **Crawls** brochure pages on your configured website (e.g. [amada.eu](https://www.amada.eu))
+2. **Downloads** PDFs and generates cover thumbnails
+3. **Serves** a touch-optimized kiosk UI for browsing, reading, QR codes, and link copying
+
+No database, no login — designed as a read-only display on a local network.
+
+---
 
 ## Features
 
-- **9:16 Touch-Kiosk-UI** – optimiert für Hochformat-Displays
-- **Mehrsprachig** – DE, EN, NL, FR, IT, PL, HU, RO, SE, TR (konfigurierbar)
-- **Kategoriefilter**, PDF-Viewer, QR-Codes auf Original-URLs der Quell-Website
-- **Automatischer Sync** – PDFs beim Start und optional per Cron
+| Feature | Description |
+|--------|-------------|
+| **9:16 touch UI** | Optimized for portrait touch displays |
+| **10 languages** | DE, EN, NL, FR, IT, PL, HU, RO, SE, TR (each can be enabled/disabled) |
+| **Category filters** | Fiber laser, punching, bending, automation, etc. |
+| **PDF viewer** | In-browser reader with scroll/swipe |
+| **QR codes** | Link to the **original brochure URL** on the source website |
+| **Link table** | Copy official PDF URLs for sales e-mails |
+| **Auto-sync** | On startup and optionally via cron (default: every 24 h) |
+| **Offline mode** | PDFs are stored locally after sync |
 
-## Schnellstart
+---
+
+## Requirements
+
+- **Docker** and **Docker Compose** (or Portainer with stack deploy)
+- Network access to the **source website** during sync (not required for kiosk use after sync)
+- A screen or touchscreen with a modern browser (Chrome, Edge, Firefox)
+
+For Windows kiosk mode: Microsoft Edge (see [Kiosk mode](#kiosk-mode-windows-edge) below).
+
+---
+
+## Quick start (5 minutes)
+
+### 1. Get the project
+
+```bash
+git clone https://github.com/bucto/amada-mediathek.git
+cd amada-mediathek
+```
+
+### 2. Create configuration
 
 ```bash
 cp .env.example .env
-# .env anpassen: SOURCE_BASE_URL, INDEX_*, COMPANY_NAME, Logo unter frontend/assets/
-
-docker compose up --build -d
-# UI: http://localhost:8080  (Port über MEDIATHEK_PORT)
 ```
 
-Erster Sync dauert einige Minuten: `docker logs -f brochure-mediathek`
+Edit `.env` — at minimum set `SOURCE_BASE_URL`, the `INDEX_*` paths for your languages, and `COMPANY_NAME`.
 
-### Testmodus (ohne Download)
+### 3. Build and start
+
+```bash
+docker compose up --build -d
+```
+
+Open in a browser:
+
+- **http://localhost:8080** (or the port set in `MEDIATHEK_PORT`)
+
+### 4. Watch the first sync
+
+The first sync downloads PDFs and builds thumbnails. This can take **10–30 minutes** depending on languages and network speed.
+
+```bash
+docker logs -f amada-mediathek
+```
+
+Wait until you see `Synchronisation abgeschlossen` or `Fertig:` in the logs.
+
+### 5. Test without downloading (demo mode)
+
+For UI testing only, without crawling the source website:
 
 ```env
 SYNC_ENABLED=false
 ```
 
-Startet mit **2 Demo-Broschüren** – ideal für UI-Tests.
+Then rebuild and start — shows **2 demo brochures** with a local PDF.
 
-## Wichtige Umgebungsvariablen
+---
 
-| Variable | Beschreibung |
-|---|---|
-| `MEDIATHEK_PORT` | Host-Port (Standard `8080`) |
-| `COMPANY_NAME` | Firmenname in Fußzeile und Browser-Titel |
-| `COMPANY_LOGO_URL` | Logo-Pfad, z. B. `/assets/company-logo.png` |
-| `SOURCE_BASE_URL` | Basis-URL der Quell-Website (z. B. `https://www.amada.eu`) |
-| `INDEX_DE` … `INDEX_TR` | Relativer Pfad zur Broschüren-Mediathek je Sprache; **leer = Sprache aus** |
-| `SYNC_ENABLED` | PDF-Download (`false` = Demo) |
-| `SYNC_FORCE` / `SYNC_FORCE_DOWNLOAD` | Rescan / PDF-Neudownload (einmalig) |
-| `KIOSK_TOUCH_LAYOUT` | Touch-Hochformat-UI erzwingen |
+## Configuration reference
 
-**Hinweis:** `PUBLIC_URL` entfällt – QR-Codes nutzen die beim Sync gespeicherten `source_urls` der Quell-Website, nicht die Kiosk-LAN-URL.
+All settings go into `.env` (never commit this file — it is in `.gitignore`).
 
-### Sprachen
+### Essential variables
 
-Jede Sprache über `INDEX_<LANG>` steuern. Explizit leer setzen (`INDEX_FR=`), nicht weglassen.
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `MEDIATHEK_PORT` | Port on your host PC/server | `8080` |
+| `COMPANY_NAME` | Shown in footer and browser title | `AMADA GmbH` |
+| `COMPANY_LOGO_URL` | Logo path inside the container | `/assets/AMADA_80th_logo_White.svg` |
+| `SOURCE_BASE_URL` | Base URL of the brochure source site | `https://www.amada.eu` |
+| `INDEX_DE` … `INDEX_TR` | Relative path to the brochure library per language | see `.env.example` |
+| `SYNC_ENABLED` | `true` = download PDFs; `false` = demo mode | `true` |
 
-### Branding
+### Language control
 
-1. Logo nach `frontend/assets/` legen (z. B. `company-logo.png`)
-2. `COMPANY_LOGO_URL=/assets/company-logo.png` setzen
-3. `COMPANY_NAME=Ihr Unternehmen GmbH`
-4. Image neu bauen: `docker compose build --no-cache && docker compose up -d`
+Each language is controlled by `INDEX_<LANG>`:
 
-### Migration von älteren Versionen
+- Set a path → language is crawled and shown in the UI
+- Set **empty** (`INDEX_FR=`) → language is **disabled** (no crawl, no UI button)
 
-| Alt | Neu |
-|---|---|
-| `AMADA_BASE_URL` | `SOURCE_BASE_URL` |
-| `AMADA_INDEX_DE` | `INDEX_DE` |
-| `PUBLIC_URL` | *(entfernt)* |
-| Container `amada-mediathek` | `brochure-mediathek` |
+**Important:** To disable a language, set it to empty — do not remove the line.
 
-Legacy-Variablen `AMADA_*` werden vom Sync noch gelesen.
+Example — English and Italian only (faster first sync):
 
-## Beispiel: AMADA EU
-
-Siehe `.env.example` – `SOURCE_BASE_URL=https://www.amada.eu` und die passenden `INDEX_*`-Pfade.
-
-| Sprache | Mediathek |
-|---|---|
-| DE | [Broschüren-Mediathek](https://www.amada.eu/de-de/produkte/broschueren-mediathek/) |
-| EN | [Brochures Library](https://www.amada.eu/de-en/products/amada-brochures-library/) |
-| … | weitere Sprachen in `.env.example` |
-
-## PDF-Rescan
-
-`SYNC_FORCE=true` beim Deploy → nach Abschluss wieder `false`. Logs: `docker logs -f brochure-mediathek`
-
-```bash
-docker exec -e SYNC_FORCE=true brochure-mediathek python /app/sync/sync_pdfs.py
+```env
+INDEX_DE=
+INDEX_EN=de-en/products/amada-brochures-library/
+INDEX_NL=
+INDEX_FR=
+INDEX_IT=it-it/prodotti/archivio-brochure/
+INDEX_PL=
+INDEX_HU=
+INDEX_RO=
+INDEX_SE=
+INDEX_TR=
 ```
 
-## Datenspeicherung
+### Sync options
 
-- `/app/data/manifest.json` – Katalog
-- `/app/pdfs/` – PDFs (Volume)
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `SYNC_ON_START` | `true` | Sync on container start if no complete manifest exists |
+| `SYNC_INTERVAL_HOURS` | `24` | Cron interval; `0` = disable scheduled sync |
+| `SYNC_TIMEOUT_SECONDS` | `3600` | Max crawl duration per run |
+| `SYNC_FORCE` | `false` | Force re-crawl and refresh manifest/thumbnails |
+| `SYNC_FORCE_DOWNLOAD` | `false` | Also re-download all PDFs (use once, then set back to `false`) |
 
-## QR-Codes
+**Re-scan brochures** after website updates:
 
-Verlinken auf die **Original-PDF auf der konfigurierten Quell-Website** (`source_urls` im Manifest), nicht auf den Kiosk.
+```bash
+docker exec -e SYNC_FORCE=true amada-mediathek python /app/sync/sync_pdfs.py
+```
 
-## Releases
+Or set `SYNC_FORCE=true` in `.env`, restart the container, then set it back to `false`.
 
-| Version | Highlights |
-|---------|------------|
-| **1.2.0** | Generische Env-Variablen, `COMPANY_NAME`, `PUBLIC_URL` entfernt |
-| **1.1.2** | Touch-Layout, Offline-Assets, Modal-Tabs |
-| **1.0.0** | Erstes Kiosk-Release |
+### Display options
 
-Version in `VERSION` und UI-Fußzeile.
+| Variable | Description |
+|----------|-------------|
+| `PDF_PAGE_MODE` | `single` (one page) or `double` (two-page spread) |
+| `KIOSK_TOUCH_LAYOUT` | `true` = compact portrait UI even when Windows is in landscape |
+| `SCREENSAVER_ENABLED` | `true` + `SCREENSAVER_VIDEO_URL` for idle video screensaver |
+| `SCREENSAVER_TIMEOUT_MINUTES` | Minutes of inactivity before screensaver (default: `5`) |
 
-## Lizenz
+### Security-related variables
 
-Code im Repository: siehe `AUTHORS`. Heruntergeladene Broschüren-PDFs und Markenlogos gehören dem jeweiligen Anbieter.
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `SYNC_ALLOW_PRIVATE_HOSTS` | `false` | Allow crawling internal/private IPs (only for trusted LAN sources) |
+| `SYNC_MAX_PDF_BYTES` | `104857600` (100 MB) | Maximum size per downloaded PDF |
+
+---
+
+## Branding (logo & company name)
+
+1. Place your logo in `frontend/assets/` (e.g. `company-logo.png`)
+2. Set in `.env`:
+   ```env
+   COMPANY_NAME=Your Company GmbH
+   COMPANY_LOGO_URL=/assets/company-logo.png
+   ```
+3. Rebuild the image:
+   ```bash
+   docker compose build --no-cache && docker compose up -d
+   ```
+
+Logos must be local paths (`/assets/...`) or `https://` URLs. Path traversal (`..`) is blocked.
+
+---
+
+## Using the kiosk
+
+### Language switching
+
+- Use the language buttons in the **top right** (DE, EN, IT, …)
+- Or open directly in a language: `http://localhost:8080/?lang=en`
+
+| Language | URL parameter |
+|----------|---------------|
+| German | `?lang=de` |
+| English | `?lang=en` |
+| Italian | `?lang=it` |
+
+### QR codes
+
+1. Tap a brochure tile
+2. Open the **QR** tab
+3. Visitors scan the code — it opens the **official brochure page** on the source website (not your local server)
+
+### Link table (for sales teams)
+
+Switch from **Tiles** to **Link table** above the search bar. Copy official PDF URLs (DE / EN / NL columns) for e-mails — customers always get the current version from the publisher website.
+
+---
+
+## Kiosk mode (Windows / Edge)
+
+For a dedicated touchscreen PC, use the included batch script:
+
+1. Edit `scripts/start-kiosk-edge.bat` — set `MEDIATHEK_URL` to your server (e.g. `http://192.168.1.50:8080/?lang=de`)
+2. Double-click the script — Edge opens in fullscreen kiosk mode
+
+Or start Edge manually:
+
+```text
+msedge.exe --kiosk "http://localhost:8080/?lang=de" --edge-kiosk-type=fullscreen
+```
+
+---
+
+## Data storage
+
+Docker volumes persist data across restarts:
+
+| Path in container | Content |
+|-------------------|---------|
+| `/app/data/manifest.json` | Brochure catalog (titles, categories, URLs) |
+| `/app/data/config.json` | UI settings (generated from env on startup) |
+| `/app/pdfs/` | Downloaded PDF files and thumbnails |
+
+List volumes:
+
+```bash
+docker volume ls | grep mediathek
+```
+
+---
+
+## Deployment with Portainer
+
+1. In Portainer: **Stacks → Add stack → Git repository**
+2. Point to this repository
+3. Add environment variables from `.env.example` in the stack editor
+4. Deploy — Portainer builds the image locally (`pull_policy: build`)
+
+---
+
+## Security
+
+This kiosk is designed for **trusted local networks** (showroom, office LAN). It has **no login** and serves content read-only.
+
+### Built-in protections
+
+- HTTP security headers (CSP, `X-Content-Type-Options`, `X-Frame-Options`, …)
+- Sync crawler only accepts URLs under `SOURCE_BASE_URL` (blocks external PDF links)
+- Private/localhost hosts blocked by default (`SYNC_ALLOW_PRIVATE_HOSTS=false`)
+- PDF download size limit (`SYNC_MAX_PDF_BYTES`)
+- XSS mitigation in the frontend (`escapeHtml`, safe URL checks)
+- Internal sync config (`sync.env`) not served by nginx
+- `.env` is gitignored — never commit secrets
+
+### Recommendations for production
+
+| Scenario | Recommendation |
+|----------|----------------|
+| **LAN kiosk only** | Bind to local network; firewall block from internet |
+| **Internet-facing** | Put **nginx/Caddy/Traefik** in front with **HTTPS**, restrict access (VPN, IP allowlist, or basic auth) |
+| **Source website** | Only point `SOURCE_BASE_URL` at a **trusted** public site you control or trust |
+| **Updates** | Rebuild the Docker image periodically for dependency updates |
+
+QR codes and external links always point to the **configured source website**, not to the kiosk itself.
+
+---
+
+## Troubleshooting
+
+| Problem | Solution |
+|---------|----------|
+| Empty library | Wait for sync; check `docker logs -f amada-mediathek` |
+| Sync fails immediately | Verify `SOURCE_BASE_URL` is reachable; check `INDEX_*` paths |
+| Wrong language | Use `?lang=en` in the URL or enable the language in `.env` |
+| Old brochures | Run sync with `SYNC_FORCE=true` |
+| Port already in use | Change `MEDIATHEK_PORT=8091` in `.env` |
+| Logo not shown | Check path in `COMPANY_LOGO_URL`; rebuild image after adding file to `frontend/assets/` |
+| Container unhealthy | First sync can take >10 min — healthcheck allows 600 s start period |
+
+---
+
+## Migration from older versions
+
+| Old name | New name |
+|----------|----------|
+| `AMADA_BASE_URL` | `SOURCE_BASE_URL` |
+| `AMADA_INDEX_DE` | `INDEX_DE` |
+| `PUBLIC_URL` | *(removed — QR uses source website URLs)* |
+
+Legacy `AMADA_*` variables are still read automatically.
+
+---
+
+## Example: AMADA EU
+
+See `.env.example` for a ready-to-use configuration with `SOURCE_BASE_URL=https://www.amada.eu`.
+
+| Language | Brochure library on amada.eu |
+|----------|------------------------------|
+| DE | [Broschüren-Mediathek](https://www.amada.eu/de-de/produkte/broschueren-mediathek/) |
+| EN | [Brochures Library](https://www.amada.eu/de-en/products/amada-brochures-library/) |
+| IT | [Archivio brochure](https://www.amada.eu/it-it/prodotti/archivio-brochure/) |
+
+More languages are listed in `.env.example`.
+
+---
+
+## Project structure
+
+```text
+mediathek/
+├── frontend/          # Static kiosk UI (HTML, CSS, JS)
+├── sync/              # Python crawler (sync_pdfs.py)
+├── nginx/             # Web server configuration
+├── scripts/           # Docker entrypoint, cron, kiosk launcher
+├── data/              # Sample manifests for demo mode
+├── docker-compose.yml
+├── Dockerfile
+└── .env.example       # Configuration template
+```
+
+---
+
+## Further documentation
+
+- German README: [README_DE.md](README_DE.md)
+- Showroom guide (English): [docs/SHOWROOM_GUIDE_EN.md](docs/SHOWROOM_GUIDE_EN.md)
+
+---
+
+## License
+
+Code in this repository: see [AUTHORS](AUTHORS). Downloaded brochure PDFs and brand logos belong to their respective publishers.

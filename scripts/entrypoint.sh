@@ -41,11 +41,20 @@ video_url = os.getenv("SCREENSAVER_VIDEO_URL", "").strip()
 enabled_env = os.getenv("SCREENSAVER_ENABLED", "false").strip().lower() in ("1", "true", "yes", "on")
 enabled = enabled_env and bool(video_url)
 if enabled and video_url.startswith("/"):
-    local_path = "/var/www/html" + video_url
-    if not os.path.isfile(local_path):
-        print(f"[entrypoint] Screensaver: Datei fehlt ({local_path}) – deaktiviert.")
+    if ".." in video_url or video_url.startswith("//"):
+        print(f"[entrypoint] Screensaver: ungültiger Pfad ({video_url}) – deaktiviert.")
         enabled = False
         video_url = ""
+    else:
+        local_path = "/var/www/html" + video_url
+        if not os.path.isfile(local_path):
+            print(f"[entrypoint] Screensaver: Datei fehlt ({local_path}) – deaktiviert.")
+            enabled = False
+            video_url = ""
+elif enabled and video_url:
+    print("[entrypoint] Screensaver: nur lokale Pfade (/assets/...) erlaubt – deaktiviert.")
+    enabled = False
+    video_url = ""
 elif not enabled:
     video_url = ""
 try:
@@ -84,6 +93,9 @@ company_name = env("COMPANY_NAME")
 logo_url = env("COMPANY_LOGO_URL", default="/assets/AMADA_80th_logo_White.svg")
 if logo_url and not logo_url.startswith("/"):
     logo_url = "/" + logo_url.lstrip("/")
+if logo_url and (".." in logo_url or logo_url.startswith("//")):
+    print(f"[entrypoint] Ungültiges COMPANY_LOGO_URL ({logo_url!r}) – Logo deaktiviert.")
+    logo_url = ""
 
 active_langs = active_languages()
 
@@ -126,7 +138,7 @@ write_sync_env() {
     {
         env | grep -E '^(SYNC_|INDEX_|AMADA_INDEX_|PDF_|DATA_|SOURCE_|AMADA_BASE_|THUMB_|COMPANY_)' || true
     } > /app/data/sync.env
-    chmod 644 /app/data/sync.env 2>/dev/null || true
+    chmod 600 /app/data/sync.env 2>/dev/null || true
 }
 
 write_sync_env

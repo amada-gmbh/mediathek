@@ -10,10 +10,12 @@ Broschüren werden über den PDF-Dateinamen (ohne Sprachsuffix) zusammengeführt
 from __future__ import annotations
 
 import hashlib
+import ipaddress
 import json
 import logging
 import os
 import re
+import socket
 import sys
 import time
 import unicodedata
@@ -25,6 +27,7 @@ from urllib.parse import urljoin, urlparse, urlunparse
 
 import requests
 from bs4 import BeautifulSoup, Tag
+from requests.adapters import HTTPAdapter
 from requests.exceptions import RequestException
 
 logging.basicConfig(
@@ -54,6 +57,75 @@ USER_AGENT = "Brochure-Mediathek-Sync/1.0 (+kiosk)"
 ALL_LANGS = ("de", "en", "nl", "fr", "it", "pl", "hu", "ro", "se", "tr")
 SYNC_FORCE = os.getenv("SYNC_FORCE", "false").lower() == "true"
 SYNC_FORCE_DOWNLOAD = os.getenv("SYNC_FORCE_DOWNLOAD", "false").lower() == "true"
+SYNC_ALLOW_PRIVATE_HOSTS = os.getenv("SYNC_ALLOW_PRIVATE_HOSTS", "false").lower() == "true"
+MAX_PDF_BYTES = int(os.getenv("SYNC_MAX_PDF_BYTES", str(100 * 1024 * 1024)))
+
+
+def _hostname_resolves_to_blocked_ip(host: str) -> bool:
+    host = host.lower().rstrip(".")
+    if host in ("localhost", "127.0.0.1", "::1", "0.0.0.0"):
+        return True
+    try:
+        for info in socket.getaddrinfo(host, None):
+            ip = ipaddress.ip_address(info[4][0])
+            if (
+                ip.is_private
+                or ip.is_loopback
+                or ip.is_link_local
+                or ip.is_reserved
+                or ip.is_multicast
+            ):
+                return True
+    except (OSError, ValueError):
+        return True
+    return False
+
+
+def is_safe_base_url(url: str) -> bool:
+    parsed = urlparse(url)
+    if parsed.scheme not in ("http", "https"):
+        return False
+    if not parsed.hostname:
+        return False
+    if parsed.username or parsed.password:
+        return False
+    if not SYNC_ALLOW_PRIVATE_HOSTS and _hostname_resolves_to_blocked_ip(parsed.hostname):
+        return False
+    return True
+
+
+def is_allowed_source_url(url: str) -> bool:
+    if not url or not BASE_URL:
+        return False
+    normalized = normalize_url(url)
+    if not normalized.startswith(BASE_URL):
+        return False
+    parsed = urlparse(normalized)
+    if parsed.scheme not in ("http", "https"):
+        return False
+    if not SYNC_ALLOW_PRIVATE_HOSTS and parsed.hostname and _hostname_resolves_to_blocked_ip(
+        parsed.hostname
+    ):
+        return False
+    return True
+
+
+class SafeHTTPAdapter(HTTPAdapter):
+    """Blockiert HTTP-Requests zu URLs außerhalb der konfigurierten Quelle."""
+
+    def send(self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None):
+        url = request.url or ""
+        if url and not is_allowed_source_url(url):
+            raise RequestException(f"Request blockiert (URL außerhalb der Quelle): {url}")
+        return super().send(
+            request,
+            stream=stream,
+            timeout=timeout,
+            verify=verify,
+            cert=cert,
+            proxies=proxies,
+        )
+
 
 def _index_env_key(lang: str) -> str:
     return f"INDEX_{lang.upper()}"
@@ -477,7 +549,7 @@ def discover_category_urls(session: requests.Session, index_path: str) -> list[s
         if not href or href.startswith("mailto:"):
             continue
         full = urljoin(BASE_URL + "/", href.lstrip("/"))
-        if not full.startswith(BASE_URL):
+        if not is_allowed_source_url(full):
             continue
         path = urlparse(full).path.rstrip("/")
         if not path.startswith(base_path + "/"):
@@ -545,6 +617,8 @@ def collect_pdf_urls(root: Tag) -> list[str]:
         if ".pdf" not in href.lower():
             continue
         full_url = href if href.startswith("http") else urljoin(BASE_URL, href)
+        if not is_allowed_source_url(full_url):
+            continue
         if full_url not in seen:
             seen.add(full_url)
             urls.append(full_url)
@@ -627,15 +701,29 @@ def parse_category_page(html: str, page_url: str, locale_lang: str) -> list[Broc
 
 
 def download_pdf(session: requests.Session, url: str, dest: Path, force: bool = False) -> bool:
+    if not is_allowed_source_url(url):
+        log.warning("Download blockiert (URL außerhalb der Quelle): %s", url)
+        return False
     if not force and dest.exists() and dest.stat().st_size > 0:
         return True
     try:
         with session.get(url, stream=True, timeout=60) as resp:
             resp.raise_for_status()
+            content_length = resp.headers.get("Content-Length")
+            if content_length and int(content_length) > MAX_PDF_BYTES:
+                log.warning("Download zu groß (%s bytes): %s", content_length, url)
+                return False
             dest.parent.mkdir(parents=True, exist_ok=True)
+            total = 0
             with open(dest, "wb") as fh:
                 for chunk in resp.iter_content(chunk_size=65536):
                     if chunk:
+                        total += len(chunk)
+                        if total > MAX_PDF_BYTES:
+                            log.warning("Download abgebrochen (>%d bytes): %s", MAX_PDF_BYTES, url)
+                            fh.close()
+                            dest.unlink(missing_ok=True)
+                            return False
                         fh.write(chunk)
         if dest.stat().st_size == 0:
             dest.unlink(missing_ok=True)
@@ -941,6 +1029,8 @@ def main() -> int:
         log.info("SYNC_FORCE_DOWNLOAD=true – vorhandene PDFs werden neu heruntergeladen.")
 
     session = requests.Session()
+    session.mount("http://", SafeHTTPAdapter())
+    session.mount("https://", SafeHTTPAdapter())
     session.headers.update({"User-Agent": USER_AGENT})
 
     all_entries: list[BrochureEntry] = []
@@ -952,6 +1042,14 @@ def main() -> int:
             "AMADA_BASE_URL=%r SOURCE_BASE_URL=%r",
             os.getenv("AMADA_BASE_URL"),
             os.getenv("SOURCE_BASE_URL"),
+        )
+        return 1
+
+    if not is_safe_base_url(BASE_URL):
+        log.error(
+            "SOURCE_BASE_URL ist nicht erlaubt (nur öffentliche http(s)-URLs; "
+            "interne Hosts mit SYNC_ALLOW_PRIVATE_HOSTS=true): %s",
+            BASE_URL,
         )
         return 1
 
