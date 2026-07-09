@@ -12,17 +12,21 @@ SCREENSAVER_VIDEO_URL="${SCREENSAVER_VIDEO_URL:-}"
 
 # Legacy AMADA_* → SOURCE_* (Portainer-Stacks nutzen oft noch AMADA_BASE_URL)
 migrate_legacy_env() {
-    if [ -z "${SOURCE_BASE_URL// }" ] && [ -n "${AMADA_BASE_URL// }" ]; then
-        export SOURCE_BASE_URL="${AMADA_BASE_URL}"
+    local src="${SOURCE_BASE_URL:-}"
+    local leg_base="${AMADA_BASE_URL:-}"
+    if [ -z "${src// }" ] && [ -n "${leg_base// }" ]; then
+        export SOURCE_BASE_URL="${leg_base}"
         echo "[entrypoint] SOURCE_BASE_URL aus AMADA_BASE_URL übernommen."
-    elif [ -z "${SOURCE_BASE_URL// }" ]; then
+    elif [ -z "${src// }" ]; then
         export SOURCE_BASE_URL="https://www.amada.eu"
     fi
     for lang in de en nl fr it pl hu ro dk no se tr; do
         var="INDEX_${lang^^}"
         legacy="AMADA_INDEX_${lang^^}"
-        if [ -z "${!var// }" ] && [ -n "${!legacy// }" ]; then
-            export "${var}=${!legacy}"
+        val="${!var:-}"
+        leg="${!legacy:-}"
+        if [ -z "${val// }" ] && [ -n "${leg// }" ]; then
+            export "${var}=${leg}"
         fi
     done
 }
