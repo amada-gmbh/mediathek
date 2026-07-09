@@ -123,19 +123,25 @@ Each language is controlled by `INDEX_<LANG>`:
 
 **Important:** To disable a language, set it to empty — do not remove the line.
 
-Example — English and Italian only (faster first sync):
+UI default on first start:
+
+- The language selector starts with **DE, EN, NL enabled**.
+- Additional languages can be enabled in the web UI via **Languages**.
+- Users can disable DE/EN/NL afterwards if needed.
+
+Built-in default paths (already included in the repository):
 
 ```env
-INDEX_DE=
+INDEX_DE=de-de/produkte/broschueren-mediathek/
 INDEX_EN=de-en/products/amada-brochures-library/
-INDEX_NL=
-INDEX_FR=
+INDEX_NL=nl-nl/producten/brochure-bibliotheek/
+INDEX_FR=fr-fr/produits/bibliotheque-de-brochures/
 INDEX_IT=it-it/prodotti/archivio-brochure/
-INDEX_PL=
-INDEX_HU=
-INDEX_RO=
-INDEX_SE=
-INDEX_TR=
+INDEX_PL=pl-pl/produkty/biblioteka-broszur/
+INDEX_HU=hu-hu/termekek/kiadvany-koenyvtar/
+INDEX_RO=ro-ro/produse/biblioteca-de-brosuri/
+INDEX_SE=se-se/produkter/broschyr-mediabibliotek/
+INDEX_TR=tr-tr/ueruenler/brosuer-kuetuephanesi/
 ```
 
 ### Sync options
@@ -339,6 +345,8 @@ QR codes and external links always point to the **configured source website**, n
 | Logo not shown | Check path in `COMPANY_LOGO_URL`; rebuild image after adding file to `frontend/assets/` |
 | Container unhealthy | First sync can take >10 min — healthcheck allows 600 s start period |
 
+For questions or issues, contact: `thomas.buecken@amada.de`.
+
 ---
 
 ## Migration from older versions
@@ -393,3 +401,6 @@ mediathek/
 ## License
 
 Code in this repository: see [AUTHORS](AUTHORS). Downloaded brochure PDFs and brand logos belong to their respective publishers.
+
+- "AMADA trademark/logo and brochure content are excluded."
+- "Only source code is licensed under MIT."

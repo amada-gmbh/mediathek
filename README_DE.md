@@ -123,6 +123,12 @@ Jede Sprache über `INDEX_<LANG>`:
 
 **Wichtig:** Zum Deaktivieren explizit leer setzen — Zeile nicht entfernen.
 
+UI-Standard beim ersten Start:
+
+- In der Sprachwahl sind initial **DE, EN, NL aktiv**.
+- Weitere Sprachen können in der Weboberfläche über **Sprachen** aktiviert werden.
+- DE/EN/NL können anschließend bei Bedarf wieder deaktiviert werden.
+
 Beispiel — nur Englisch und Italienisch (schnellerer Erst-Sync):
 
 ```env
@@ -326,6 +332,8 @@ QR-Codes und externe Links verweisen immer auf die **konfigurierte Quell-Website
 | Logo fehlt | Pfad in `COMPANY_LOGO_URL` prüfen; nach Datei in `frontend/assets/` Image neu bauen |
 | Container „unhealthy“ | Erster Sync kann >10 Min. dauern — Healthcheck erlaubt 600 s Startphase |
 
+Bei Fragen oder Problemen bitte an `thomas.buecken@amada.de` wenden.
+
 ---
 
 ## Migration von älteren Versionen
@@ -381,3 +389,6 @@ mediathek/
 ## Lizenz
 
 Code im Repository: siehe [AUTHORS](AUTHORS). Heruntergeladene Broschüren-PDFs und Markenlogos gehören dem jeweiligen Anbieter.
+
+- "AMADA trademark/logo and brochure content are excluded."
+- "Only source code is licensed under MIT."

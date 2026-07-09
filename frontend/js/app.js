@@ -29,6 +29,7 @@
   const TABLE_LINK_LANGS = ['de', 'en', 'nl'];
   const VIEW_MODE_KEY = 'mediathek_view_mode';
   const ENABLED_LANGS_KEY = 'mediathek_enabled_langs';
+  const DEFAULT_ENABLED_LANGS = ['de', 'en', 'nl'];
   const LANG_FLAGS = {
     de: '🇩🇪', en: '🇬🇧', nl: '🇳🇱', fr: '🇫🇷', it: '🇮🇹', pl: '🇵🇱', hu: '🇭🇺',
     dk: '🇩🇰', no: '🇳🇴',
@@ -421,11 +422,13 @@
       state.availableLangs = [...ALL_LANGS];
     }
     if (!state.enabledLangs.length) {
-      state.enabledLangs = [...state.availableLangs];
+      const defaults = DEFAULT_ENABLED_LANGS.filter((lang) => state.availableLangs.includes(lang));
+      state.enabledLangs = defaults.length ? defaults : [state.availableLangs[0]];
     } else {
       state.enabledLangs = state.enabledLangs.filter((lang) => state.availableLangs.includes(lang));
       if (!state.enabledLangs.length && state.availableLangs.length) {
-        state.enabledLangs = [state.availableLangs[0]];
+        const defaults = DEFAULT_ENABLED_LANGS.filter((lang) => state.availableLangs.includes(lang));
+        state.enabledLangs = defaults.length ? defaults : [state.availableLangs[0]];
       }
     }
     if (!getActiveLangs().includes(state.uiLang)) {
