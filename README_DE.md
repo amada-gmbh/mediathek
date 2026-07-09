@@ -1,6 +1,6 @@
 # Broschüren-Mediathek
 
-**Version 1.3.0** — Touch-Kiosk für Broschüren-PDFs in Showrooms und Büros. Läuft in Docker, synchronisiert PDFs von einer konfigurierbaren Website und funktioniert nach dem ersten Sync **offline**.
+**Version 1.4.0** — Touch-Kiosk für Broschüren-PDFs in Showrooms und Büros. Läuft in Docker, synchronisiert PDFs von einer konfigurierbaren Website und funktioniert nach dem ersten Sync **offline**.
 
 Generischer Open-Source-Stack: Crawl-Quelle, Logo und Firmenname werden per Umgebungsvariablen gesetzt. Im Repository liegt ein **AMADA-EU-Beispiel** in `.env.example`.
 

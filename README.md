@@ -1,6 +1,6 @@
 # Brochure Library (Mediathek)
 
-**Version 1.3.0** — Touch-friendly brochure kiosk for showrooms and offices. Runs in Docker, syncs PDFs from a configurable public website, and works offline after the first sync.
+**Version 1.4.0** — Touch-friendly brochure kiosk for showrooms and offices. Runs in Docker, syncs PDFs from a configurable public website, and works offline after the first sync.
 
 This is a generic open-source stack: crawl source, logo, and company name are set via environment variables. The repository includes an **AMADA EU example** in `.env.example`.
 

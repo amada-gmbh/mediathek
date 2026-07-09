@@ -5,7 +5,7 @@
   'use strict';
 
   /** Öffentliche Projekt-Version (Fußzeile, Releases) */
-  const RELEASE_VERSION = '1.3.9';
+  const RELEASE_VERSION = '1.4.0';
   /** Cache-Busting für statische Assets */
   const APP_VERSION = '34';
   const CSS_VERSION = '41';
