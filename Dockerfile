@@ -25,6 +25,7 @@ COPY pdfs/demo-test_de.pdf /app/pdfs/demo-test_de.pdf
 COPY nginx/nginx.conf /etc/nginx/nginx.conf
 COPY scripts/entrypoint.sh /entrypoint.sh
 COPY scripts/run-sync-cron.sh /app/scripts/run-sync-cron.sh
+COPY scripts/lang-api.py /app/scripts/lang-api.py
 
 RUN chmod +x /entrypoint.sh /app/scripts/run-sync-cron.sh \
     && chown -R www-data:www-data /var/www/html /app/pdfs /app/data

@@ -505,10 +505,27 @@
     } catch (_) { /* ignore */ }
   }
 
+  async function loadServerEnabledLangs() {
+    try {
+      const res = await fetch('/api/enabled-langs');
+      if (!res.ok) return;
+      const data = await res.json();
+      if (Array.isArray(data) && data.length) {
+        state.enabledLangs = data.filter((lang) => ALL_LANGS.includes(lang));
+        try { localStorage.setItem(ENABLED_LANGS_KEY, JSON.stringify(state.enabledLangs)); } catch (_) { /* ignore */ }
+      }
+    } catch (_) { /* ignore — server may not support this endpoint */ }
+  }
+
   function saveEnabledLangPreferences() {
     try {
       localStorage.setItem(ENABLED_LANGS_KEY, JSON.stringify(state.enabledLangs));
     } catch (_) { /* ignore */ }
+    fetch('/api/enabled-langs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(state.enabledLangs),
+    }).catch(() => { /* offline or API unavailable */ });
   }
 
   const $ = (sel) => document.querySelector(sel);
@@ -1812,6 +1829,7 @@
     try {
       loadViewModePreference();
       loadEnabledLangPreferences();
+      await loadServerEnabledLangs();
       await loadConfig();
       bindEvents();
       initScreensaver();

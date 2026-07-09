@@ -18,7 +18,7 @@ migrate_legacy_env() {
     elif [ -z "${SOURCE_BASE_URL// }" ]; then
         export SOURCE_BASE_URL="https://www.amada.eu"
     fi
-    for lang in de en nl fr it pl hu ro se tr; do
+    for lang in de en nl fr it pl hu ro dk no se tr; do
         var="INDEX_${lang^^}"
         legacy="AMADA_INDEX_${lang^^}"
         if [ -z "${!var// }" ] && [ -n "${!legacy// }" ]; then
@@ -70,7 +70,7 @@ if page_mode not in ("single", "double"):
 
 touch_layout = os.getenv("KIOSK_TOUCH_LAYOUT", "false").strip().lower() in ("1", "true", "yes", "on")
 
-ALL_LANGS = ("de", "en", "nl", "fr", "it", "pl", "hu", "ro", "se", "tr")
+ALL_LANGS = ("de", "en", "nl", "fr", "it", "pl", "hu", "ro", "dk", "no", "se", "tr")
 DEFAULT_INDEX_PATHS = {
     "de": "de-de/produkte/broschueren-mediathek/",
     "en": "de-en/products/amada-brochures-library/",
@@ -80,6 +80,8 @@ DEFAULT_INDEX_PATHS = {
     "pl": "pl-pl/produkty/biblioteka-broszur/",
     "hu": "hu-hu/termekek/kiadvany-koenyvtar/",
     "ro": "ro-ro/produse/biblioteca-de-brosuri/",
+    "dk": "dk-dk/produkter/brochurebibliotek/",
+    "no": "no-no/produkter/brosjyrebibliotek/",
     "se": "se-se/produkter/broschyr-mediabibliotek/",
     "tr": "tr-tr/ueruenler/brosuer-kuetuephanesi/",
 }
@@ -226,6 +228,9 @@ if [ "$SYNC_ENABLED" != "false" ] && [ -n "$SYNC_INTERVAL_HOURS" ] && [ "$SYNC_I
     cron
     echo "[entrypoint] Cron-Sync alle ${SYNC_INTERVAL_HOURS}h aktiviert (Log: /var/log/sync.log)."
 fi
+
+echo "[entrypoint] Starte Lang-API …"
+python /app/scripts/lang-api.py &
 
 echo "[entrypoint] Starte Nginx …"
 exec nginx -g "daemon off;"

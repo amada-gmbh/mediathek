@@ -51,6 +51,8 @@ DEFAULT_INDEX_PATHS: dict[str, str] = {
     "nl": "nl-nl/producten/brochure-bibliotheek/",
     "fr": "fr-fr/produits/bibliotheque-de-brochures/",
     "it": "it-it/prodotti/archivio-brochure/",
+    "dk": "dk-dk/produkter/brochurebibliotek/",
+    "no": "no-no/produkter/brosjyrebibliotek/",
     "pl": "pl-pl/produkty/biblioteka-broszur/",
     "hu": "hu-hu/termekek/kiadvany-koenyvtar/",
     "ro": "ro-ro/produse/biblioteca-de-brosuri/",
@@ -68,7 +70,7 @@ DATA_DIR = Path(os.getenv("DATA_DIR", "/app/data"))
 MANIFEST_PATH = DATA_DIR / "manifest.json"
 SYNC_TIMEOUT = int(os.getenv("SYNC_TIMEOUT_SECONDS", "1800"))
 USER_AGENT = "Brochure-Mediathek-Sync/1.0 (+kiosk)"
-ALL_LANGS = ("de", "en", "nl", "fr", "it", "pl", "hu", "ro", "se", "tr")
+ALL_LANGS = ("de", "en", "nl", "fr", "it", "pl", "hu", "ro", "dk", "no", "se", "tr")
 SYNC_FORCE = os.getenv("SYNC_FORCE", "false").lower() == "true"
 SYNC_FORCE_DOWNLOAD = os.getenv("SYNC_FORCE_DOWNLOAD", "false").lower() == "true"
 SYNC_ALLOW_PRIVATE_HOSTS = os.getenv("SYNC_ALLOW_PRIVATE_HOSTS", "false").lower() == "true"
@@ -159,9 +161,26 @@ def _resolve_index_path(lang: str) -> str | None:
     return DEFAULT_INDEX_PATHS.get(lang)
 
 
+ENABLED_LANGS_FILE = DATA_DIR / "enabled_langs.json"
+
+
+def _load_enabled_langs() -> frozenset[str] | None:
+    """Read UI language selection; returns None if no preference file exists."""
+    try:
+        data = json.loads(ENABLED_LANGS_FILE.read_text("utf-8"))
+        if isinstance(data, list) and data:
+            return frozenset(l.lower() for l in data if isinstance(l, str) and l.lower() in ALL_LANGS)
+    except (FileNotFoundError, json.JSONDecodeError, OSError):
+        pass
+    return None
+
+
 def load_active_locale_paths() -> dict[str, str]:
+    enabled = _load_enabled_langs()
     paths: dict[str, str] = {}
     for lang in ALL_LANGS:
+        if enabled is not None and lang not in enabled:
+            continue
         path = _resolve_index_path(lang)
         if path:
             paths[lang] = path
