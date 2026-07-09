@@ -50,13 +50,21 @@ git clone https://github.com/bucto/amada-mediathek.git
 cd amada-mediathek
 ```
 
-### 2. Create configuration
+### 2. (Optional) create configuration
 
 ```bash
 cp .env.example .env
 ```
 
-Edit `.env` — at minimum set `SOURCE_BASE_URL`, the `INDEX_*` paths for your languages, and `COMPANY_NAME`.
+The repository already contains built-in defaults for:
+
+- `SOURCE_BASE_URL=https://www.amada.eu`
+- `INDEX_DE ... INDEX_TR` (all AMADA EU brochure paths)
+- sync/runtime defaults (`SYNC_*`, `PDF_PAGE_MODE`, screensaver off)
+- branding defaults (`COMPANY_NAME=AMADA GmbH`, `COMPANY_LOGO_URL=/assets/AMADA_80th_logo_White.svg`)
+
+So you can start **without** `.env`.  
+Create/edit `.env` only when you want to override defaults.
 
 ### 3. Build and start
 
@@ -92,7 +100,7 @@ Then rebuild and start — shows **2 demo brochures** with a local PDF.
 
 ## Configuration reference
 
-All settings go into `.env` (never commit this file — it is in `.gitignore`).
+All settings can be overridden via `.env` (never commit this file — it is in `.gitignore`).
 
 ### Essential variables
 
@@ -109,7 +117,8 @@ All settings go into `.env` (never commit this file — it is in `.gitignore`).
 
 Each language is controlled by `INDEX_<LANG>`:
 
-- Set a path → language is crawled and shown in the UI
+- Not set → built-in AMADA EU default path is used
+- Set a path → overrides the default path
 - Set **empty** (`INDEX_FR=`) → language is **disabled** (no crawl, no UI button)
 
 **Important:** To disable a language, set it to empty — do not remove the line.
@@ -142,25 +151,18 @@ INDEX_TR=
 ### Sync schema (EU source, every 24h)
 
 ```text
-AMADA EU website (SOURCE_BASE_URL + INDEX_*)
-            |
-            |  crawl category pages + discover PDF links
-            v
-sync/sync_pdfs.py
-  - validates source URLs
-  - downloads/updates PDFs
-  - generates thumbnails
-  - writes /app/data/manifest.json
-            |
-            v
-nginx serves:
-  /data/manifest.json
-  /pdfs/*
-            |
-            v
-Kiosk frontend (browser)
-  - reloads manifest
-  - shows updated brochures
+┌───────────────────────────────────┐     ┌──────────────────────────────┐     ┌───────────────────────────┐
+│  AMADA EU Source Website          │────▶│  Sync Worker                 │────▶│  Local Data Store         │
+│  SOURCE_BASE_URL + INDEX_* paths  │     │  sync/sync_pdfs.py           │     │  /app/data + /app/pdfs    │
+│  category pages + PDF links       │     │  crawl + download + thumbnails│     │  manifest.json + PDFs      │
+└───────────────────────────────────┘     └──────────────────────────────┘     └───────────────────────────┘
+                                                                                              │
+                                                                                              ▼
+                                                                                ┌───────────────────────────┐
+                                                                                │  Kiosk Web App            │
+                                                                                │  nginx + frontend         │
+                                                                                │  reads manifest + PDFs    │
+                                                                                └───────────────────────────┘
 ```
 
 Runtime schedule:
@@ -290,6 +292,18 @@ docker volume ls | grep mediathek
 
 This kiosk is designed for **trusted local networks** (showroom, office LAN). It has **no login** and serves content read-only.
 
+### Offline operation benefit (trade fairs / public terminals)
+
+After the initial sync, the catalog and PDFs are stored locally (`/app/data`, `/app/pdfs`).  
+So the kiosk can run **offline** or in a strictly isolated network during exhibitions.
+
+Benefits:
+
+- No permanent internet access required on booth terminals
+- Lower risk of misuse at the booth (e.g. visitors opening unrelated external websites)
+- More stable operation even if venue Wi-Fi is unstable
+- Better controlled presentation environment for AMADA trade-fair setups
+
 ### Built-in protections
 
 - HTTP security headers (CSP, `X-Content-Type-Options`, `X-Frame-Options`, …)
@@ -341,7 +355,7 @@ Legacy `AMADA_*` variables are still read automatically.
 
 ## Example: AMADA EU
 
-See `.env.example` for a ready-to-use configuration with `SOURCE_BASE_URL=https://www.amada.eu`.
+The repository already includes ready-to-run defaults for `SOURCE_BASE_URL=https://www.amada.eu` and all `INDEX_*` paths.
 
 | Language | Brochure library on amada.eu |
 |----------|------------------------------|

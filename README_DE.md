@@ -50,13 +50,21 @@ git clone https://github.com/bucto/amada-mediathek.git
 cd amada-mediathek
 ```
 
-### 2. Konfiguration anlegen
+### 2. (Optional) Konfiguration anlegen
 
 ```bash
 cp .env.example .env
 ```
 
-`.env` bearbeiten — mindestens `SOURCE_BASE_URL`, die `INDEX_*`-Pfade für Ihre Sprachen und `COMPANY_NAME` setzen.
+Das Repository enthält bereits feste Standardwerte für:
+
+- `SOURCE_BASE_URL=https://www.amada.eu`
+- `INDEX_DE ... INDEX_TR` (alle AMADA-EU-Broschürenpfade)
+- Sync-/Runtime-Defaults (`SYNC_*`, `PDF_PAGE_MODE`, Screensaver aus)
+- Branding-Defaults (`COMPANY_NAME=AMADA GmbH`, `COMPANY_LOGO_URL=/assets/AMADA_80th_logo_White.svg`)
+
+Damit kann der Stack auch **ohne** `.env` direkt gestartet werden.  
+`.env` wird nur benötigt, wenn Sie Defaults überschreiben möchten.
 
 ### 3. Bauen und starten
 
@@ -92,7 +100,7 @@ Dann neu bauen und starten — zeigt **2 Demo-Broschüren** mit lokalem PDF.
 
 ## Konfiguration
 
-Alle Einstellungen stehen in `.env` (niemals committen — steht in `.gitignore`).
+Alle Einstellungen können über `.env` überschrieben werden (niemals committen — steht in `.gitignore`).
 
 ### Wichtige Variablen
 
@@ -109,7 +117,8 @@ Alle Einstellungen stehen in `.env` (niemals committen — steht in `.gitignore`
 
 Jede Sprache über `INDEX_<LANG>`:
 
-- Pfad setzen → Sprache wird gecrawlt und in der UI angezeigt
+- Nicht gesetzt → eingebauter AMADA-EU-Standardpfad wird verwendet
+- Pfad setzen → überschreibt den Standardpfad
 - **Leer** setzen (`INDEX_FR=`) → Sprache **aus** (kein Crawl, kein Button)
 
 **Wichtig:** Zum Deaktivieren explizit leer setzen — Zeile nicht entfernen.
@@ -138,6 +147,23 @@ INDEX_TR=
 | `SYNC_TIMEOUT_SECONDS` | `3600` | Max. Crawl-Dauer pro Lauf |
 | `SYNC_FORCE` | `false` | Quellen neu crawlen, Manifest/Thumbnails aktualisieren |
 | `SYNC_FORCE_DOWNLOAD` | `false` | Alle PDFs neu laden (einmalig, danach wieder `false`) |
+
+### Datenfluss (EU-Quelle, Standard alle 24h)
+
+```text
+┌───────────────────────────────────┐     ┌──────────────────────────────┐     ┌───────────────────────────┐
+│  AMADA EU Quell-Website           │────▶│  Sync-Worker                 │────▶│  Lokaler Datenspeicher    │
+│  SOURCE_BASE_URL + INDEX_*-Pfade  │     │  sync/sync_pdfs.py           │     │  /app/data + /app/pdfs    │
+│  Kategorie-Seiten + PDF-Links     │     │  Crawl + Download + Thumbs   │     │  manifest.json + PDFs     │
+└───────────────────────────────────┘     └──────────────────────────────┘     └───────────────────────────┘
+                                                                                              │
+                                                                                              ▼
+                                                                                ┌───────────────────────────┐
+                                                                                │  Kiosk-Weboberfläche      │
+                                                                                │  nginx + frontend         │
+                                                                                │  liest Manifest + PDFs    │
+                                                                                └───────────────────────────┘
+```
 
 **Broschüren neu einlesen** nach Website-Updates:
 
@@ -253,6 +279,18 @@ docker volume ls | grep mediathek
 
 Der Kiosk ist für **vertrauenswürdige lokale Netzwerke** (Showroom, Büro-LAN) gedacht. Es gibt **kein Login**; Inhalte werden nur gelesen.
 
+### Offline-Vorteil für Messen und Terminals
+
+Nach dem initialen Sync liegen Katalog und PDFs lokal auf dem Terminal/Server (`/app/data`, `/app/pdfs`).  
+Damit kann das System im Messebetrieb **offline** oder in einem strikt abgeschotteten Netz laufen.
+
+Vorteile:
+
+- Kein permanenter Internetzugriff an den Messe-Terminals nötig
+- Geringeres Risiko von Missbrauch am Stand (z. B. Aufruf fremder Webseiten durch Dritte)
+- Stabilere Bedienung auch bei instabiler Hallen-/Gast-WLAN-Verbindung
+- Besser kontrollierbare Präsentationsumgebung für den AMADA-Messestand
+
 ### Eingebaute Schutzmaßnahmen
 
 - HTTP-Sicherheitsheader (CSP, `X-Content-Type-Options`, `X-Frame-Options`, …)
@@ -305,7 +343,7 @@ Legacy-Variablen `AMADA_*` werden weiterhin automatisch gelesen.
 
 ## Beispiel: AMADA EU
 
-Fertige Konfiguration in `.env.example` mit `SOURCE_BASE_URL=https://www.amada.eu`.
+Das Repository enthält bereits lauffähige Defaults mit `SOURCE_BASE_URL=https://www.amada.eu` und allen `INDEX_*`-Pfaden.
 
 | Sprache | Broschüren-Mediathek auf amada.eu |
 |---------|-----------------------------------|

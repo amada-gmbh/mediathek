@@ -44,7 +44,21 @@ def _env(name: str, legacy: str | None = None, default: str = "") -> str:
     return value or default
 
 
-BASE_URL = _env("SOURCE_BASE_URL", "AMADA_BASE_URL").rstrip("/")
+DEFAULT_SOURCE_BASE_URL = "https://www.amada.eu"
+DEFAULT_INDEX_PATHS: dict[str, str] = {
+    "de": "de-de/produkte/broschueren-mediathek/",
+    "en": "de-en/products/amada-brochures-library/",
+    "nl": "nl-nl/producten/brochure-bibliotheek/",
+    "fr": "fr-fr/produits/bibliotheque-de-brochures/",
+    "it": "it-it/prodotti/archivio-brochure/",
+    "pl": "pl-pl/produkty/biblioteka-broszur/",
+    "hu": "hu-hu/termekek/kiadvany-koenyvtar/",
+    "ro": "ro-ro/produse/biblioteca-de-brosuri/",
+    "se": "se-se/produkter/broschyr-mediabibliotek/",
+    "tr": "tr-tr/ueruenler/brosuer-kuetuephanesi/",
+}
+
+BASE_URL = _env("SOURCE_BASE_URL", "AMADA_BASE_URL", default=DEFAULT_SOURCE_BASE_URL).rstrip("/")
 PDF_DIR = Path(os.getenv("PDF_DIR", "/app/pdfs"))
 THUMB_DIR = PDF_DIR / "thumbs"
 THUMB_SIZE = (600, 800)
@@ -136,13 +150,13 @@ def _legacy_index_env_key(lang: str) -> str:
 
 
 def _resolve_index_path(lang: str) -> str | None:
-    """Leere INDEX_* → Sprache deaktiviert (kein Crawl/Download)."""
+    """Leere INDEX_* → Sprache deaktiviert, sonst Env-Override oder Repo-Default."""
     env_key = _index_env_key(lang)
     legacy_key = _legacy_index_env_key(lang)
     if env_key in os.environ or legacy_key in os.environ:
         value = _env(env_key, legacy_key)
         return value if value else None
-    return None
+    return DEFAULT_INDEX_PATHS.get(lang)
 
 
 def load_active_locale_paths() -> dict[str, str]:
@@ -175,7 +189,7 @@ def apply_legacy_env() -> None:
             if legacy_val:
                 os.environ[key] = legacy_val
 
-    BASE_URL = _env("SOURCE_BASE_URL", "AMADA_BASE_URL").rstrip("/")
+    BASE_URL = _env("SOURCE_BASE_URL", "AMADA_BASE_URL", default=DEFAULT_SOURCE_BASE_URL).rstrip("/")
     ACTIVE_LOCALE_PATHS = load_active_locale_paths()
     ACTIVE_LANGS = frozenset(ACTIVE_LOCALE_PATHS.keys())
 

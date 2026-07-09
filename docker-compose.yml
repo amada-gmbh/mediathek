@@ -19,17 +19,17 @@ services:
         required: false
     environment:
       # Crawl-Quelle (in Portainer / .env setzen)
-      SOURCE_BASE_URL: ${SOURCE_BASE_URL}
-      INDEX_DE: ${INDEX_DE:-}
-      INDEX_EN: ${INDEX_EN:-}
-      INDEX_NL: ${INDEX_NL:-}
-      INDEX_FR: ${INDEX_FR:-}
-      INDEX_IT: ${INDEX_IT:-}
-      INDEX_PL: ${INDEX_PL:-}
-      INDEX_HU: ${INDEX_HU:-}
-      INDEX_RO: ${INDEX_RO:-}
-      INDEX_SE: ${INDEX_SE:-}
-      INDEX_TR: ${INDEX_TR:-}
+      SOURCE_BASE_URL: ${SOURCE_BASE_URL:-https://www.amada.eu}
+      INDEX_DE: ${INDEX_DE:-de-de/produkte/broschueren-mediathek/}
+      INDEX_EN: ${INDEX_EN:-de-en/products/amada-brochures-library/}
+      INDEX_NL: ${INDEX_NL:-nl-nl/producten/brochure-bibliotheek/}
+      INDEX_FR: ${INDEX_FR:-fr-fr/produits/bibliotheque-de-brochures/}
+      INDEX_IT: ${INDEX_IT:-it-it/prodotti/archivio-brochure/}
+      INDEX_PL: ${INDEX_PL:-pl-pl/produkty/biblioteka-broszur/}
+      INDEX_HU: ${INDEX_HU:-hu-hu/termekek/kiadvany-koenyvtar/}
+      INDEX_RO: ${INDEX_RO:-ro-ro/produse/biblioteca-de-brosuri/}
+      INDEX_SE: ${INDEX_SE:-se-se/produkter/broschyr-mediabibliotek/}
+      INDEX_TR: ${INDEX_TR:-tr-tr/ueruenler/brosuer-kuetuephanesi/}
       # Legacy (optional, falls noch AMADA_* in Portainer)
       AMADA_BASE_URL: ${AMADA_BASE_URL:-}
       AMADA_INDEX_DE: ${AMADA_INDEX_DE:-}
@@ -43,8 +43,8 @@ services:
       AMADA_INDEX_SE: ${AMADA_INDEX_SE:-}
       AMADA_INDEX_TR: ${AMADA_INDEX_TR:-}
       # Kiosk-Branding (Frontend / Footer)
-      COMPANY_NAME: ${COMPANY_NAME:-AMADA}
-      COMPANY_LOGO_URL: ${COMPANY_LOGO_URL:-https://cdn.amada.eu/typo3conf/ext/theme/Resources/Public/images/logo-80th.png}
+      COMPANY_NAME: ${COMPANY_NAME:-AMADA GmbH}
+      COMPANY_LOGO_URL: ${COMPANY_LOGO_URL:-/assets/AMADA_80th_logo_White.svg}
       # Sync komplett aus (Testmodus): SYNC_ENABLED=false
       SYNC_ENABLED: ${SYNC_ENABLED:-true}
       SYNC_ON_START: ${SYNC_ON_START:-true}

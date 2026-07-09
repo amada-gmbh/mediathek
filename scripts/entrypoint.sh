@@ -15,6 +15,8 @@ migrate_legacy_env() {
     if [ -z "${SOURCE_BASE_URL// }" ] && [ -n "${AMADA_BASE_URL// }" ]; then
         export SOURCE_BASE_URL="${AMADA_BASE_URL}"
         echo "[entrypoint] SOURCE_BASE_URL aus AMADA_BASE_URL übernommen."
+    elif [ -z "${SOURCE_BASE_URL// }" ]; then
+        export SOURCE_BASE_URL="https://www.amada.eu"
     fi
     for lang in de en nl fr it pl hu ro se tr; do
         var="INDEX_${lang^^}"
@@ -69,6 +71,18 @@ if page_mode not in ("single", "double"):
 touch_layout = os.getenv("KIOSK_TOUCH_LAYOUT", "false").strip().lower() in ("1", "true", "yes", "on")
 
 ALL_LANGS = ("de", "en", "nl", "fr", "it", "pl", "hu", "ro", "se", "tr")
+DEFAULT_INDEX_PATHS = {
+    "de": "de-de/produkte/broschueren-mediathek/",
+    "en": "de-en/products/amada-brochures-library/",
+    "nl": "nl-nl/producten/brochure-bibliotheek/",
+    "fr": "fr-fr/produits/bibliotheque-de-brochures/",
+    "it": "it-it/prodotti/archivio-brochure/",
+    "pl": "pl-pl/produkty/biblioteka-broszur/",
+    "hu": "hu-hu/termekek/kiadvany-koenyvtar/",
+    "ro": "ro-ro/produse/biblioteca-de-brosuri/",
+    "se": "se-se/produkter/broschyr-mediabibliotek/",
+    "tr": "tr-tr/ueruenler/brosuer-kuetuephanesi/",
+}
 
 def index_env(lang):
     return f"INDEX_{lang.upper()}"
@@ -84,9 +98,10 @@ def active_languages():
         if key in os.environ or legacy in os.environ:
             if not env(key, legacy):
                 continue
-        else:
+            langs.append(lang)
             continue
-        langs.append(lang)
+        if DEFAULT_INDEX_PATHS.get(lang):
+            langs.append(lang)
     return langs
 
 company_name = env("COMPANY_NAME")
