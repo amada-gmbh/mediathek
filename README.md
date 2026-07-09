@@ -41,7 +41,93 @@ For Windows kiosk mode: Microsoft Edge (see [Kiosk mode](#kiosk-mode-windows-edg
 
 ---
 
-## Quick start (5 minutes)
+## Windows installation (step by step for beginners)
+
+This guide walks you through the entire setup on a **Windows 10/11** PC — no prior experience needed.
+
+### Step 1: Install Docker Desktop
+
+Docker is the software that runs the brochure kiosk in an isolated container.
+
+1. Open your browser and go to: **https://www.docker.com/products/docker-desktop/**
+2. Click **Download for Windows**
+3. Run the downloaded installer (`Docker Desktop Installer.exe`)
+4. During installation, keep all defaults — make sure **"Use WSL 2"** is checked
+5. When prompted, **restart your PC**
+6. After restart, Docker Desktop opens automatically — wait until it says **"Docker Desktop is running"** (green icon in the taskbar near the clock)
+
+> **Note:** Docker Desktop requires **Windows 10/11 Pro, Enterprise, or Education**. The Home edition works too if WSL 2 is available (Windows 10 version 2004 or later).
+
+### Step 2: Download the project
+
+You have two options:
+
+**Option A — Download as ZIP (easiest):**
+
+1. Go to: **https://github.com/bucto/amada-mediathek**
+2. Click the green **Code** button, then **Download ZIP**
+3. Extract the ZIP file to a folder you can find easily, e.g. `C:\mediathek`
+
+**Option B — Using Git (if installed):**
+
+1. Open **PowerShell** (press `Win` key, type `PowerShell`, click it)
+2. Type the following and press Enter:
+
+```powershell
+cd C:\
+git clone https://github.com/bucto/amada-mediathek.git mediathek
+```
+
+### Step 3: Start the kiosk
+
+1. Open **PowerShell** (press `Win` key, type `PowerShell`, click it)
+2. Navigate to the project folder:
+
+```powershell
+cd C:\mediathek
+```
+
+3. Start the container:
+
+```powershell
+docker compose up --build -d
+```
+
+4. Wait until the command finishes (this takes 2–5 minutes the first time)
+
+### Step 4: Open the kiosk
+
+1. Open your browser (Chrome, Edge, or Firefox)
+2. Go to: **http://localhost:8080**
+3. The kiosk appears — on the first start it will download brochures automatically (10–30 minutes)
+
+### Step 5: Check if the sync is running
+
+To see what the application is doing, open PowerShell and type:
+
+```powershell
+docker logs -f amada-mediathek
+```
+
+Wait until you see `Synchronisation abgeschlossen` or `Fertig:` — then all brochures are ready.
+
+Press `Ctrl + C` to stop watching the log.
+
+### Everyday use
+
+| Action | What to do |
+|--------|-----------|
+| **Start the kiosk** | Open PowerShell, run `docker compose up -d` in the project folder |
+| **Stop the kiosk** | Open PowerShell, run `docker compose down` in the project folder |
+| **Open in browser** | Go to **http://localhost:8080** |
+| **Update brochures** | Happens automatically every 24 hours (internet required) |
+| **Change the port** | Create `.env` file with `MEDIATHEK_PORT=9090`, restart |
+
+> **Tip:** The container restarts automatically when the PC boots (as long as Docker Desktop is running). So for a permanent kiosk setup, just enable "Start Docker Desktop when you sign in" in Docker Desktop settings.
+
+---
+
+## Quick start (experienced users)
 
 ### 1. Get the project
 

@@ -41,7 +41,93 @@ Für Windows-Kioskmodus: Microsoft Edge (siehe [Kioskmodus](#kioskmodus-windows-
 
 ---
 
-## Schnellstart (5 Minuten)
+## Windows-Installation (Schritt für Schritt für Einsteiger)
+
+Diese Anleitung führt Sie durch die komplette Einrichtung auf einem **Windows 10/11**-PC — keine Vorkenntnisse nötig.
+
+### Schritt 1: Docker Desktop installieren
+
+Docker ist die Software, die den Broschüren-Kiosk in einem isolierten Container ausführt.
+
+1. Browser öffnen und aufrufen: **https://www.docker.com/products/docker-desktop/**
+2. Auf **Download for Windows** klicken
+3. Die heruntergeladene Datei (`Docker Desktop Installer.exe`) ausführen
+4. Während der Installation alle Standardwerte beibehalten — sicherstellen, dass **„Use WSL 2"** aktiviert ist
+5. Nach Aufforderung den **PC neu starten**
+6. Nach dem Neustart startet Docker Desktop automatisch — warten, bis **„Docker Desktop is running"** angezeigt wird (grünes Symbol im Infobereich neben der Uhr)
+
+> **Hinweis:** Docker Desktop benötigt **Windows 10/11 Pro, Enterprise oder Education**. Die Home-Edition funktioniert ebenfalls, wenn WSL 2 verfügbar ist (Windows 10 ab Version 2004).
+
+### Schritt 2: Projekt herunterladen
+
+Es gibt zwei Möglichkeiten:
+
+**Variante A — Als ZIP herunterladen (am einfachsten):**
+
+1. Im Browser öffnen: **https://github.com/bucto/amada-mediathek**
+2. Auf den grünen **Code**-Button klicken, dann **Download ZIP**
+3. Die ZIP-Datei in einen leicht auffindbaren Ordner entpacken, z. B. `C:\mediathek`
+
+**Variante B — Mit Git (falls installiert):**
+
+1. **PowerShell** öffnen (Windows-Taste drücken, `PowerShell` eingeben, anklicken)
+2. Folgendes eingeben und mit Enter bestätigen:
+
+```powershell
+cd C:\
+git clone https://github.com/bucto/amada-mediathek.git mediathek
+```
+
+### Schritt 3: Kiosk starten
+
+1. **PowerShell** öffnen (Windows-Taste drücken, `PowerShell` eingeben, anklicken)
+2. In den Projektordner wechseln:
+
+```powershell
+cd C:\mediathek
+```
+
+3. Container starten:
+
+```powershell
+docker compose up --build -d
+```
+
+4. Warten, bis der Befehl abgeschlossen ist (beim ersten Mal 2–5 Minuten)
+
+### Schritt 4: Kiosk öffnen
+
+1. Browser öffnen (Chrome, Edge oder Firefox)
+2. Adresse eingeben: **http://localhost:8080**
+3. Der Kiosk erscheint — beim ersten Start werden Broschüren automatisch heruntergeladen (10–30 Minuten)
+
+### Schritt 5: Sync-Fortschritt prüfen
+
+Um zu sehen, was die Anwendung gerade tut, in PowerShell eingeben:
+
+```powershell
+docker logs -f amada-mediathek
+```
+
+Warten, bis `Synchronisation abgeschlossen` oder `Fertig:` erscheint — dann sind alle Broschüren bereit.
+
+Mit `Strg + C` die Log-Anzeige beenden.
+
+### Tägliche Nutzung
+
+| Aktion | Was tun |
+|--------|---------|
+| **Kiosk starten** | PowerShell öffnen, im Projektordner `docker compose up -d` eingeben |
+| **Kiosk stoppen** | PowerShell öffnen, im Projektordner `docker compose down` eingeben |
+| **Im Browser öffnen** | **http://localhost:8080** aufrufen |
+| **Broschüren aktualisieren** | Geschieht automatisch alle 24 Stunden (Internet nötig) |
+| **Port ändern** | `.env`-Datei mit `MEDIATHEK_PORT=9090` erstellen, neu starten |
+
+> **Tipp:** Der Container startet automatisch mit dem PC (solange Docker Desktop läuft). Für einen Dauer-Kiosk einfach in den Docker-Desktop-Einstellungen „Start Docker Desktop when you sign in" aktivieren.
+
+---
+
+## Schnellstart (erfahrene Nutzer)
 
 ### 1. Projekt holen
 
