@@ -661,17 +661,24 @@ html, body {
   cursor: pointer;
 }
 
+#lang-config-modal > .modal-backdrop {
+  background: rgba(0, 0, 0, 0.45);
+}
+
 .lang-config-panel {
+  position: relative;
+  z-index: 1;
   width: min(96vw, 52rem);
   max-height: min(92vh, 48rem);
   margin: auto;
   border-radius: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: #1f1f1f;
-  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: #3a3a40;
+  padding: 1.25rem;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 .lang-config-header {
@@ -683,13 +690,14 @@ html, body {
 
 .lang-config-header h2 {
   margin: 0;
-  font-size: 1rem;
+  font-size: 1.125rem;
+  color: #fff;
 }
 
 .lang-config-note {
   margin: 0;
   font-size: 0.8125rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .lang-config-list {
@@ -704,16 +712,16 @@ html, body {
   grid-template-columns: auto 3rem 1fr;
   gap: 0.625rem;
   align-items: center;
-  padding: 0.5rem 0.625rem;
+  padding: 0.625rem 0.75rem;
   border-radius: 0.625rem;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.14);
 }
 
 .lang-config-item a {
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.95);
   text-decoration: none;
   word-break: break-all;
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
 }
 
 .lang-config-item a:hover {
@@ -721,12 +729,13 @@ html, body {
 }
 
 .lang-config-item.is-disabled {
-  opacity: 0.45;
+  opacity: 0.6;
 }
 
 .lang-config-code {
   font-weight: 700;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
+  color: #fff;
 }
 
 .lang-config-actions {
