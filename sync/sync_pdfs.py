@@ -69,7 +69,11 @@ THUMB_PAD = 12
 DATA_DIR = Path(os.getenv("DATA_DIR", "/app/data"))
 MANIFEST_PATH = DATA_DIR / "manifest.json"
 SYNC_TIMEOUT = int(os.getenv("SYNC_TIMEOUT_SECONDS", "1800"))
-USER_AGENT = "Brochure-Mediathek-Sync/1.0 (+kiosk)"
+USER_AGENT = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) "
+    "Chrome/126.0.0.0 Safari/537.36"
+)
 ALL_LANGS = ("de", "en", "nl", "fr", "it", "pl", "hu", "ro", "dk", "no", "se", "tr")
 SYNC_FORCE = os.getenv("SYNC_FORCE", "false").lower() == "true"
 SYNC_FORCE_DOWNLOAD = os.getenv("SYNC_FORCE_DOWNLOAD", "false").lower() == "true"
@@ -110,18 +114,24 @@ def is_safe_base_url(url: str) -> bool:
     return True
 
 
+def _base_domain(hostname: str) -> str:
+    """Extract base domain: cdn.amada.eu -> amada.eu, www.amada.eu -> amada.eu"""
+    parts = hostname.lower().split(".")
+    return ".".join(parts[-2:]) if len(parts) >= 2 else hostname.lower()
+
+
 def is_allowed_source_url(url: str) -> bool:
     if not url or not BASE_URL:
         return False
-    normalized = normalize_url(url)
-    if not normalized.startswith(BASE_URL):
-        return False
-    parsed = urlparse(normalized)
+    parsed = urlparse(url)
     if parsed.scheme not in ("http", "https"):
         return False
-    if not SYNC_ALLOW_PRIVATE_HOSTS and parsed.hostname and _hostname_resolves_to_blocked_ip(
-        parsed.hostname
-    ):
+    if not parsed.hostname:
+        return False
+    base_host = urlparse(BASE_URL).hostname or ""
+    if _base_domain(parsed.hostname) != _base_domain(base_host):
+        return False
+    if not SYNC_ALLOW_PRIVATE_HOSTS and _hostname_resolves_to_blocked_ip(parsed.hostname):
         return False
     return True
 
@@ -555,15 +565,18 @@ def normalize_url(url: str) -> str:
     return urlunparse((parsed.scheme, parsed.netloc, path, parsed.params, parsed.query, ""))
 
 
-def fetch_html(session: requests.Session, url: str) -> str | None:
+def fetch_html(session: requests.Session, url: str, retries: int = 2) -> str | None:
     url = normalize_url(url)
-    try:
-        resp = session.get(url, timeout=30)
-        resp.raise_for_status()
-        return resp.text
-    except RequestException as exc:
-        log.warning("Seite nicht erreichbar: %s (%s)", url, exc)
-        return None
+    for attempt in range(1, retries + 2):
+        try:
+            resp = session.get(url, timeout=30)
+            resp.raise_for_status()
+            return resp.text
+        except RequestException as exc:
+            log.warning("Seite nicht erreichbar: %s (%s)", url, exc)
+            if attempt <= retries:
+                time.sleep(2 * attempt)
+    return None
 
 
 def discover_category_urls(session: requests.Session, index_path: str) -> list[str]:
