@@ -240,7 +240,13 @@ if [ "$SYNC_ENABLED" != "false" ] && [ -n "$SYNC_INTERVAL_HOURS" ] && [ "$SYNC_I
 fi
 
 echo "[entrypoint] Starte Lang-API …"
-python /app/scripts/lang-api.py &
+nohup python -u /app/scripts/lang-api.py > /var/log/lang-api.log 2>&1 &
+sleep 0.5
+if kill -0 $! 2>/dev/null; then
+    echo "[entrypoint] Lang-API läuft (PID $!)."
+else
+    echo "[entrypoint] WARNUNG: Lang-API konnte nicht gestartet werden."
+fi
 
 echo "[entrypoint] Starte Nginx …"
 exec nginx -g "daemon off;"

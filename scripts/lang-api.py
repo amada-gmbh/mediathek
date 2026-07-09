@@ -23,7 +23,7 @@ ENABLED_LANGS_FILE = DATA_DIR / "enabled_langs.json"
 
 class Handler(BaseHTTPRequestHandler):
     def log_message(self, fmt, *args):
-        pass
+        print(f"[lang-api] {fmt % args}", flush=True)
 
     def _cors(self):
         self.send_header("Content-Type", "application/json")
