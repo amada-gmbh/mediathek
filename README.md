@@ -140,6 +140,8 @@ INDEX_IT=it-it/prodotti/archivio-brochure/
 INDEX_PL=pl-pl/produkty/biblioteka-broszur/
 INDEX_HU=hu-hu/termekek/kiadvany-koenyvtar/
 INDEX_RO=ro-ro/produse/biblioteca-de-brosuri/
+INDEX_DK=dk-dk/produkter/brochurebibliotek/
+INDEX_NO=no-no/produkter/brosjyrebibliotek/
 INDEX_SE=se-se/produkter/broschyr-mediabibliotek/
 INDEX_TR=tr-tr/ueruenler/brosuer-kuetuephanesi/
 ```
@@ -157,18 +159,32 @@ INDEX_TR=tr-tr/ueruenler/brosuer-kuetuephanesi/
 ### Sync schema (EU source, every 24h)
 
 ```text
-┌───────────────────────────────────┐     ┌──────────────────────────────┐     ┌───────────────────────────┐
-│  AMADA EU Source Website          │────▶│  Sync Worker                 │────▶│  Local Data Store         │
-│  SOURCE_BASE_URL + INDEX_* paths  │     │  sync/sync_pdfs.py           │     │  /app/data + /app/pdfs    │
-│  category pages + PDF links       │     │  crawl + download + thumbnails│     │  manifest.json + PDFs      │
-└───────────────────────────────────┘     └──────────────────────────────┘     └───────────────────────────┘
-                                                                                              │
-                                                                                              ▼
-                                                                                ┌───────────────────────────┐
-                                                                                │  Kiosk Web App            │
-                                                                                │  nginx + frontend         │
-                                                                                │  reads manifest + PDFs    │
-                                                                                └───────────────────────────┘
+┌──────────────────────┐
+│  AMADA EU Website    │
+│  SOURCE_BASE_URL     │
+│  + INDEX_* paths     │
+└──────────┬───────────┘
+           │ crawl
+           ▼
+┌──────────────────────┐
+│  Sync Worker         │
+│  sync_pdfs.py        │
+│  download + thumbs   │
+└──────────┬───────────┘
+           │ write
+           ▼
+┌──────────────────────┐
+│  Local Storage       │
+│  manifest.json       │
+│  /app/pdfs/*         │
+└──────────┬───────────┘
+           │ serve
+           ▼
+┌──────────────────────┐
+│  Kiosk Frontend      │
+│  nginx + browser     │
+│  offline capable     │
+└──────────────────────┘
 ```
 
 Runtime schedule:

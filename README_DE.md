@@ -129,19 +129,21 @@ UI-Standard beim ersten Start:
 - Weitere Sprachen können in der Weboberfläche über **Sprachen** aktiviert werden.
 - DE/EN/NL können anschließend bei Bedarf wieder deaktiviert werden.
 
-Beispiel — nur Englisch und Italienisch (schnellerer Erst-Sync):
+Eingebaute Standard-Pfade (bereits im Repository enthalten):
 
 ```env
-INDEX_DE=
+INDEX_DE=de-de/produkte/broschueren-mediathek/
 INDEX_EN=de-en/products/amada-brochures-library/
-INDEX_NL=
-INDEX_FR=
+INDEX_NL=nl-nl/producten/brochure-bibliotheek/
+INDEX_FR=fr-fr/produits/bibliotheque-de-brochures/
 INDEX_IT=it-it/prodotti/archivio-brochure/
-INDEX_PL=
-INDEX_HU=
-INDEX_RO=
-INDEX_SE=
-INDEX_TR=
+INDEX_PL=pl-pl/produkty/biblioteka-broszur/
+INDEX_HU=hu-hu/termekek/kiadvany-koenyvtar/
+INDEX_RO=ro-ro/produse/biblioteca-de-brosuri/
+INDEX_DK=dk-dk/produkter/brochurebibliotek/
+INDEX_NO=no-no/produkter/brosjyrebibliotek/
+INDEX_SE=se-se/produkter/broschyr-mediabibliotek/
+INDEX_TR=tr-tr/ueruenler/brosuer-kuetuephanesi/
 ```
 
 ### Sync-Optionen
@@ -157,18 +159,32 @@ INDEX_TR=
 ### Datenfluss (EU-Quelle, Standard alle 24h)
 
 ```text
-┌───────────────────────────────────┐     ┌──────────────────────────────┐     ┌───────────────────────────┐
-│  AMADA EU Quell-Website           │────▶│  Sync-Worker                 │────▶│  Lokaler Datenspeicher    │
-│  SOURCE_BASE_URL + INDEX_*-Pfade  │     │  sync/sync_pdfs.py           │     │  /app/data + /app/pdfs    │
-│  Kategorie-Seiten + PDF-Links     │     │  Crawl + Download + Thumbs   │     │  manifest.json + PDFs     │
-└───────────────────────────────────┘     └──────────────────────────────┘     └───────────────────────────┘
-                                                                                              │
-                                                                                              ▼
-                                                                                ┌───────────────────────────┐
-                                                                                │  Kiosk-Weboberfläche      │
-                                                                                │  nginx + frontend         │
-                                                                                │  liest Manifest + PDFs    │
-                                                                                └───────────────────────────┘
+┌──────────────────────┐
+│  AMADA EU Website    │
+│  SOURCE_BASE_URL     │
+│  + INDEX_*-Pfade     │
+└──────────┬───────────┘
+           │ Crawl
+           ▼
+┌──────────────────────┐
+│  Sync-Worker         │
+│  sync_pdfs.py        │
+│  Download + Thumbs   │
+└──────────┬───────────┘
+           │ Schreiben
+           ▼
+┌──────────────────────┐
+│  Lokaler Speicher    │
+│  manifest.json       │
+│  /app/pdfs/*         │
+└──────────┬───────────┘
+           │ Ausliefern
+           ▼
+┌──────────────────────┐
+│  Kiosk-Oberfläche    │
+│  nginx + Browser     │
+│  Offline-fähig       │
+└──────────────────────┘
 ```
 
 **Broschüren neu einlesen** nach Website-Updates:
