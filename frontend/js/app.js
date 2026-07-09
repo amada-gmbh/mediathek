@@ -1151,7 +1151,7 @@
     return state.manifest.brochures.filter((b) => {
       if (state.category !== 'all' && b.category !== state.category) return false;
       if (!brochureMatchesSearch(b, state.search)) return false;
-      return resolvePdfPath(b) !== null;
+      return resolvePdfPath(b, { strict: true }) !== null;
     });
   }
 
