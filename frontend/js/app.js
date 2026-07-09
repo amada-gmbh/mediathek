@@ -10,12 +10,28 @@
   const APP_VERSION = '34';
   const CSS_VERSION = '41';
   const PDF_JS_BASE = '/js/vendor/';
-  const ALL_LANGS = ['de', 'en', 'nl', 'fr', 'it', 'pl', 'hu', 'ro', 'se', 'tr'];
+  const ALL_LANGS = ['de', 'en', 'nl', 'fr', 'it', 'pl', 'hu', 'ro', 'dk', 'no', 'se', 'tr'];
+  const EU_LANGUAGE_URLS = {
+    de: 'https://www.amada.eu/de-de/produkte/broschueren-mediathek/',
+    en: 'https://www.amada.eu/de-en/products/amada-brochures-library/',
+    nl: 'https://www.amada.eu/nl-nl/producten/brochure-bibliotheek/',
+    fr: 'https://www.amada.eu/fr-fr/produits/bibliotheque-de-brochures/',
+    it: 'https://www.amada.eu/it-it/prodotti/archivio-brochure/',
+    pl: 'https://www.amada.eu/pl-pl/produkty/biblioteka-broszur/',
+    hu: 'https://www.amada.eu/hu-hu/termekek/kiadvany-koenyvtar/',
+    ro: 'https://www.amada.eu/ro-ro/produse/biblioteca-de-brosuri/',
+    dk: 'https://www.amada.eu/dk-dk/produkter/brochurebibliotek/',
+    no: 'https://www.amada.eu/no-no/produkter/brosjyrebibliotek/',
+    se: 'https://www.amada.eu/se-se/produkter/broschyr-mediabibliotek/',
+    tr: 'https://www.amada.eu/tr-tr/ueruenler/brosuer-kuetuephanesi/',
+  };
   /** Link-Tabelle: Original-PDFs auf der Zielwebsite (DE primär, EN/NL optional) */
   const TABLE_LINK_LANGS = ['de', 'en', 'nl'];
   const VIEW_MODE_KEY = 'mediathek_view_mode';
+  const ENABLED_LANGS_KEY = 'mediathek_enabled_langs';
   const LANG_FLAGS = {
     de: '🇩🇪', en: '🇬🇧', nl: '🇳🇱', fr: '🇫🇷', it: '🇮🇹', pl: '🇵🇱', hu: '🇭🇺',
+    dk: '🇩🇰', no: '🇳🇴',
     ro: '🇷🇴', se: '🇸🇪', tr: '🇹🇷',
   };
 
@@ -238,6 +254,58 @@
       scroll_up: 'Derulați în sus',
       scroll_down: 'Derulați în jos',
     },
+    dk: {
+      loading: 'Brochurer indlæses …',
+      title: 'Brochurebibliotek',
+      subtitle: 'Tryk for at vælge',
+      search: 'Søg brochure …',
+      all_categories: 'Alle',
+      tab_viewer: 'Vis',
+      tab_qr: 'QR-kode',
+      download: 'Download PDF',
+      qr_hint: 'Scan koden for at åbne brochuren på udgiverens website.',
+      qr_unavailable: 'Originalt link er ikke tilgængeligt – prøv igen efter næste synkronisering.',
+      empty: 'Ingen brochurer tilgængelige. Synkronisering kører …',
+      no_results: 'Ingen resultater',
+      sync_label: 'Opdateret',
+      lang_unavailable: 'Ikke tilgængelig på dette sprog',
+      pdf_loading: 'PDF indlæses …',
+      pdf_error: 'PDF kunne ikke indlæses',
+      screensaver_hint: 'Tryk for at fortsætte',
+      copy_link: 'Kopiér originalt link',
+      copy_ok: 'Link kopieret',
+      copy_fail: 'Kopiering mislykkedes',
+      copy_unavailable: 'Intet originalt link tilgængeligt',
+      scroll_hint: 'Swipe ned for flere brochurer',
+      scroll_up: 'Rul op',
+      scroll_down: 'Rul ned',
+    },
+    no: {
+      loading: 'Laster brosjyrer …',
+      title: 'Brosjyrebibliotek',
+      subtitle: 'Trykk for å velge',
+      search: 'Søk brosjyre …',
+      all_categories: 'Alle',
+      tab_viewer: 'Vis',
+      tab_qr: 'QR-kode',
+      download: 'Last ned PDF',
+      qr_hint: 'Skann koden for å åpne brosjyren på utgiverens nettsted.',
+      qr_unavailable: 'Original lenke er ikke tilgjengelig – prøv igjen etter neste synkronisering.',
+      empty: 'Ingen brosjyrer tilgjengelig. Synkronisering pågår …',
+      no_results: 'Ingen treff',
+      sync_label: 'Oppdatert',
+      lang_unavailable: 'Ikke tilgjengelig på dette språket',
+      pdf_loading: 'Laster PDF …',
+      pdf_error: 'PDF kunne ikke lastes',
+      screensaver_hint: 'Trykk for å fortsette',
+      copy_link: 'Kopier original lenke',
+      copy_ok: 'Lenke kopiert',
+      copy_fail: 'Kopiering feilet',
+      copy_unavailable: 'Ingen original lenke tilgjengelig',
+      scroll_hint: 'Sveip ned for flere brosjyrer',
+      scroll_up: 'Rull opp',
+      scroll_down: 'Rull ned',
+    },
     se: {
       loading: 'Laddar broschyrer …',
       title: 'Broschyr mediabibliotek',
@@ -294,6 +362,7 @@
 
   const LOCALE_MAP = {
     de: 'de-DE', en: 'en-GB', nl: 'nl-NL', fr: 'fr-FR', it: 'it-IT', pl: 'pl-PL', hu: 'hu-HU',
+    dk: 'da-DK', no: 'nb-NO',
     ro: 'ro-RO', se: 'sv-SE', tr: 'tr-TR',
   };
 
@@ -333,21 +402,52 @@
       pageMode: 'single',
     },
     pdfRenderToken: 0,
-    activeLangs: [],
+    availableLangs: [],
+    enabledLangs: [],
     touchLayout: false,
   };
 
   function getActiveLangs() {
-    return state.activeLangs.length ? state.activeLangs : ALL_LANGS;
+    const available = state.availableLangs.length ? state.availableLangs : ALL_LANGS;
+    if (!state.enabledLangs.length) return available;
+    const enabled = available.filter((lang) => state.enabledLangs.includes(lang));
+    return enabled.length ? enabled : [available[0]];
   }
 
   function applyActiveLangs(langs) {
     if (Array.isArray(langs) && langs.length) {
-      state.activeLangs = langs.filter((l) => ALL_LANGS.includes(l));
+      state.availableLangs = langs.filter((l) => ALL_LANGS.includes(l));
+    } else {
+      state.availableLangs = [...ALL_LANGS];
+    }
+    if (!state.enabledLangs.length) {
+      state.enabledLangs = [...state.availableLangs];
+    } else {
+      state.enabledLangs = state.enabledLangs.filter((lang) => state.availableLangs.includes(lang));
+      if (!state.enabledLangs.length && state.availableLangs.length) {
+        state.enabledLangs = [state.availableLangs[0]];
+      }
     }
     if (!getActiveLangs().includes(state.uiLang)) {
       state.uiLang = getActiveLangs()[0] || 'de';
     }
+  }
+
+  function loadEnabledLangPreferences() {
+    try {
+      const raw = localStorage.getItem(ENABLED_LANGS_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        state.enabledLangs = parsed.filter((lang) => ALL_LANGS.includes(lang));
+      }
+    } catch (_) { /* ignore */ }
+  }
+
+  function saveEnabledLangPreferences() {
+    try {
+      localStorage.setItem(ENABLED_LANGS_KEY, JSON.stringify(state.enabledLangs));
+    } catch (_) { /* ignore */ }
   }
 
   const $ = (sel) => document.querySelector(sel);
@@ -653,7 +753,7 @@
     }
     if (state.manifest.supported_languages?.length) {
       applyActiveLangs(state.manifest.supported_languages);
-    } else if (!state.activeLangs.length) {
+    } else if (!state.availableLangs.length) {
       applyActiveLangs(ALL_LANGS);
     }
   }
@@ -1176,6 +1276,72 @@
     });
   }
 
+  function openLangConfig() {
+    renderLangConfigList();
+    $('#lang-config-modal')?.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLangConfig() {
+    $('#lang-config-modal')?.classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
+  function renderLangConfigList() {
+    const list = $('#lang-config-list');
+    if (!list) return;
+    const activeSet = new Set(getActiveLangs());
+    list.innerHTML = '';
+    const available = state.availableLangs.length ? state.availableLangs : ALL_LANGS;
+    available.forEach((lang) => {
+      const row = document.createElement('label');
+      row.className = 'lang-config-item' + (activeSet.has(lang) ? '' : ' is-disabled');
+      row.dataset.lang = lang;
+
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.checked = activeSet.has(lang);
+      checkbox.addEventListener('change', () => {
+        row.classList.toggle('is-disabled', !checkbox.checked);
+      });
+
+      const code = document.createElement('span');
+      code.className = 'lang-config-code';
+      code.textContent = lang.toUpperCase();
+
+      const link = document.createElement('a');
+      const source = EU_LANGUAGE_URLS[lang];
+      link.href = source;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.textContent = source;
+
+      row.appendChild(checkbox);
+      row.appendChild(code);
+      row.appendChild(link);
+      list.appendChild(row);
+    });
+  }
+
+  function saveLangConfigFromUi() {
+    const selected = Array.from($$('#lang-config-list .lang-config-item'))
+      .filter((row) => row.querySelector('input[type="checkbox"]')?.checked)
+      .map((row) => row.dataset.lang)
+      .filter(Boolean);
+
+    const available = state.availableLangs.length ? state.availableLangs : ALL_LANGS;
+    state.enabledLangs = selected.filter((lang) => available.includes(lang));
+    if (!state.enabledLangs.length) {
+      state.enabledLangs = [available[0]];
+    }
+    if (!state.enabledLangs.includes(state.uiLang)) {
+      state.uiLang = state.enabledLangs[0];
+    }
+    saveEnabledLangPreferences();
+    closeLangConfig();
+    render();
+  }
+
   function renderCategories() {
     const container = $('#category-chips');
     container.innerHTML = '';
@@ -1502,12 +1668,24 @@
       copyModalSourceUrl();
     });
 
+    $('#lang-config-open')?.addEventListener('click', openLangConfig);
+    $('#lang-config-save')?.addEventListener('click', saveLangConfigFromUi);
+    $$('[data-action="close-lang-config"]').forEach((el) => {
+      el.addEventListener('click', closeLangConfig);
+    });
+
     $$('[data-action="close"]').forEach((el) => {
       el.addEventListener('click', closeModal);
     });
 
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeModal();
+      if (e.key === 'Escape') {
+        if (!$('#lang-config-modal')?.classList.contains('hidden')) {
+          closeLangConfig();
+          return;
+        }
+        closeModal();
+      }
     });
 
     setInterval(async () => {
@@ -1564,6 +1742,7 @@
   async function init() {
     try {
       loadViewModePreference();
+      loadEnabledLangPreferences();
       await loadConfig();
       bindEvents();
       initScreensaver();

@@ -31,7 +31,10 @@
           <p class="kiosk-subtitle" data-i18n="subtitle">Berühren zum Auswählen</p>
         </div>
       </div>
-      <div id="lang-switcher" class="scroll-x-touch" role="group" aria-label="Sprache wählen"></div>
+      <div class="header-actions">
+        <button id="lang-config-open" type="button" class="header-action-btn" aria-haspopup="dialog">Sprachen</button>
+        <div id="lang-switcher" class="scroll-x-touch" role="group" aria-label="Sprache wählen"></div>
+      </div>
     </header>
 
     <div class="kiosk-body">
@@ -100,6 +103,25 @@
     <footer class="kiosk-footer">
       <span id="sync-info" class="footer-text">—</span>
     </footer>
+  </div>
+
+  <div id="lang-config-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="lang-config-title">
+    <div class="modal-backdrop" data-action="close-lang-config"></div>
+    <div class="modal-panel lang-config-panel">
+      <div class="lang-config-header">
+        <h2 id="lang-config-title">Sprachen verwalten</h2>
+        <button id="lang-config-close" class="modal-close-btn" data-action="close-lang-config" aria-label="Schließen">
+          <svg class="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <p class="lang-config-note">Sprache aktivieren/deaktivieren. Quelle je Sprache ist fest auf AMADA EU hinterlegt.</p>
+      <div id="lang-config-list" class="lang-config-list"></div>
+      <div class="lang-config-actions">
+        <button id="lang-config-save" type="button" class="lang-config-save-btn">Speichern</button>
+      </div>
+    </div>
   </div>
 
   <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">

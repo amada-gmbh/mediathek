@@ -43,8 +43,8 @@ services:
       AMADA_INDEX_SE: ${AMADA_INDEX_SE:-}
       AMADA_INDEX_TR: ${AMADA_INDEX_TR:-}
       # Kiosk-Branding (Frontend / Footer)
-      COMPANY_NAME: ${COMPANY_NAME:-AMADA GmbH}
-      COMPANY_LOGO_URL: ${COMPANY_LOGO_URL:-/assets/AMADA_80th_logo_White.svg}
+      COMPANY_NAME: ${COMPANY_NAME:-AMADA}
+      COMPANY_LOGO_URL: ${COMPANY_LOGO_URL:-https://cdn.amada.eu/typo3conf/ext/theme/Resources/Public/images/logo-80th.png}
       # Sync komplett aus (Testmodus): SYNC_ENABLED=false
       SYNC_ENABLED: ${SYNC_ENABLED:-true}
       SYNC_ON_START: ${SYNC_ON_START:-true}

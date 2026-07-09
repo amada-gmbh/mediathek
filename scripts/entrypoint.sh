@@ -91,11 +91,18 @@ def active_languages():
 
 company_name = env("COMPANY_NAME")
 logo_url = env("COMPANY_LOGO_URL", default="/assets/AMADA_80th_logo_White.svg")
-if logo_url and not logo_url.startswith("/"):
-    logo_url = "/" + logo_url.lstrip("/")
-if logo_url and (".." in logo_url or logo_url.startswith("//")):
-    print(f"[entrypoint] Ungültiges COMPANY_LOGO_URL ({logo_url!r}) – Logo deaktiviert.")
-    logo_url = ""
+if logo_url:
+    if logo_url.startswith(("http://", "https://")):
+        pass
+    elif logo_url.startswith("/"):
+        if ".." in logo_url or logo_url.startswith("//"):
+            print(f"[entrypoint] Ungültiges COMPANY_LOGO_URL ({logo_url!r}) – Logo deaktiviert.")
+            logo_url = ""
+    else:
+        logo_url = "/" + logo_url.lstrip("/")
+        if ".." in logo_url or logo_url.startswith("//"):
+            print(f"[entrypoint] Ungültiges COMPANY_LOGO_URL ({logo_url!r}) – Logo deaktiviert.")
+            logo_url = ""
 
 active_langs = active_languages()
 

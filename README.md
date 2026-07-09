@@ -139,6 +139,43 @@ INDEX_TR=
 | `SYNC_FORCE` | `false` | Force re-crawl and refresh manifest/thumbnails |
 | `SYNC_FORCE_DOWNLOAD` | `false` | Also re-download all PDFs (use once, then set back to `false`) |
 
+### Sync schema (EU source, every 24h)
+
+```text
+AMADA EU website (SOURCE_BASE_URL + INDEX_*)
+            |
+            |  crawl category pages + discover PDF links
+            v
+sync/sync_pdfs.py
+  - validates source URLs
+  - downloads/updates PDFs
+  - generates thumbnails
+  - writes /app/data/manifest.json
+            |
+            v
+nginx serves:
+  /data/manifest.json
+  /pdfs/*
+            |
+            v
+Kiosk frontend (browser)
+  - reloads manifest
+  - shows updated brochures
+```
+
+Runtime schedule:
+
+- **Container start**: initial sync runs (if needed, based on existing manifest/PDF state)
+- **Then every 24h** (default): cron executes `run-sync-cron.sh` -> `sync/sync_pdfs.py`
+- **Frontend refresh**: reads updated `manifest.json` and displays new/changed brochures
+
+Relevant settings:
+
+- `SYNC_ON_START=true`
+- `SYNC_INTERVAL_HOURS=24`
+- `SYNC_FORCE=true` (manual one-time full re-crawl)
+- `SYNC_FORCE_DOWNLOAD=true` (manual one-time PDF re-download)
+
 **Re-scan brochures** after website updates:
 
 ```bash
