@@ -1,0 +1,80 @@
+# Portainer Stack – Git deploy: Image wird lokal gebaut, nicht von Docker Hub gezogen.
+# https://docs.portainer.io/user/docker/stacks/add#option-3-git-repository
+
+services:
+  amada-mediathek:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: amada-mediathek:latest
+    pull_policy: build
+    container_name: amada-mediathek
+    restart: unless-stopped
+    ports:
+      - "${MEDIATHEK_PORT:-8080}:80"
+    # Portainer-Stack-Env wird nur an den Container durchgereicht, wenn die Variable
+    # hier unter environment: referenziert ist (${NAME}).
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      # Crawl-Quelle (in Portainer / .env setzen)
+      SOURCE_BASE_URL: ${SOURCE_BASE_URL}
+      INDEX_DE: ${INDEX_DE:-}
+      INDEX_EN: ${INDEX_EN:-}
+      INDEX_NL: ${INDEX_NL:-}
+      INDEX_FR: ${INDEX_FR:-}
+      INDEX_IT: ${INDEX_IT:-}
+      INDEX_PL: ${INDEX_PL:-}
+      INDEX_HU: ${INDEX_HU:-}
+      INDEX_RO: ${INDEX_RO:-}
+      INDEX_SE: ${INDEX_SE:-}
+      INDEX_TR: ${INDEX_TR:-}
+      # Legacy (optional, falls noch AMADA_* in Portainer)
+      AMADA_BASE_URL: ${AMADA_BASE_URL:-}
+      AMADA_INDEX_DE: ${AMADA_INDEX_DE:-}
+      AMADA_INDEX_EN: ${AMADA_INDEX_EN:-}
+      AMADA_INDEX_NL: ${AMADA_INDEX_NL:-}
+      AMADA_INDEX_FR: ${AMADA_INDEX_FR:-}
+      AMADA_INDEX_IT: ${AMADA_INDEX_IT:-}
+      AMADA_INDEX_PL: ${AMADA_INDEX_PL:-}
+      AMADA_INDEX_HU: ${AMADA_INDEX_HU:-}
+      AMADA_INDEX_RO: ${AMADA_INDEX_RO:-}
+      AMADA_INDEX_SE: ${AMADA_INDEX_SE:-}
+      AMADA_INDEX_TR: ${AMADA_INDEX_TR:-}
+      # Kiosk-Branding (Frontend / Footer)
+      COMPANY_NAME: ${COMPANY_NAME:-AMADA GmbH}
+      COMPANY_LOGO_URL: ${COMPANY_LOGO_URL:-/assets/AMADA_80th_logo_White.svg}
+      # Sync komplett aus (Testmodus): SYNC_ENABLED=false
+      SYNC_ENABLED: ${SYNC_ENABLED:-true}
+      SYNC_ON_START: ${SYNC_ON_START:-true}
+      SYNC_INTERVAL_HOURS: ${SYNC_INTERVAL_HOURS:-24}
+      SYNC_TIMEOUT_SECONDS: ${SYNC_TIMEOUT_SECONDS:-3600}
+      SYNC_FORCE: ${SYNC_FORCE:-true}
+      SYNC_FORCE_DOWNLOAD: ${SYNC_FORCE_DOWNLOAD:-false}
+      # Screensaver: leer = aus; z. B. SCREENSAVER_ENABLED=true + SCREENSAVER_VIDEO_URL=/assets/screensaver.mp4
+      SCREENSAVER_ENABLED: ${SCREENSAVER_ENABLED:-false}
+      SCREENSAVER_TIMEOUT_MINUTES: ${SCREENSAVER_TIMEOUT_MINUTES:-5}
+      SCREENSAVER_VIDEO_URL: ${SCREENSAVER_VIDEO_URL:-}
+      # PDF-Ansicht: single (eine Seite) | double (Doppelseite)
+      PDF_PAGE_MODE: ${PDF_PAGE_MODE:-single}
+      # Touch-Kiosk: true = Hochformat-UI auch bei Querformat-Windows-Display
+      KIOSK_TOUCH_LAYOUT: ${KIOSK_TOUCH_LAYOUT:-false}
+    volumes:
+      - mediathek_pdfs:/app/pdfs
+      - mediathek_data:/app/data
+    networks:
+      - default
+    labels:
+      - "com.amada.service=mediathek"
+      - "com.amada.description=Digitaler Broschürenständer"
+
+volumes:
+  mediathek_pdfs:
+    driver: local
+  mediathek_data:
+    driver: local
+
+networks:
+  default:
+    name: amada-mediathek-net

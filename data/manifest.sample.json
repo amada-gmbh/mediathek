@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "last_sync": null,
+  "source_base_url": "https://www.example.com",
+  "sources": {},
+  "categories": [
+    {
+      "id": "abkanten",
+      "labels": { "de": "Abkanten", "en": "Bending", "nl": "Kanten" },
+      "count": 0
+    }
+  ],
+  "brochures": []
+}

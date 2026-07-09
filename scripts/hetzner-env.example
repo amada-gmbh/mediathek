@@ -1,0 +1,23 @@
+# Kopie auf dem Hetzner-Server: ~/amada-mediathek/.env
+# Bearbeiten mit: nano ~/amada-mediathek/.env
+
+SOURCE_BASE_URL=https://www.amada.eu
+
+# Aktive Sprachen (Pfad leer lassen = Sprache aus)
+INDEX_DE=de-de/produkte/broschueren-mediathek/
+INDEX_EN=de-en/products/amada-brochures-library/
+INDEX_NL=nl-nl/producten/brochure-bibliotheek/
+INDEX_FR=fr-fr/produits/bibliotheque-de-brochures/
+INDEX_IT=it-it/prodotti/archivio-brochure/
+INDEX_PL=pl-pl/produkty/biblioteka-broszur/
+INDEX_HU=hu-hu/termekek/kiadvany-koenyvtar/
+INDEX_RO=ro-ro/produse/biblioteca-de-brosuri/
+INDEX_SE=se-se/produkter/broschyr-mediabibliotek/
+INDEX_TR=tr-tr/ueruenler/brosuer-kuetuephanesi/
+
+# Pfade auf dem Webserver (HOME ggf. anpassen)
+PDF_DIR=/usr/home/librao/public_html/pdfs
+DATA_DIR=/usr/home/librao/public_html/data
+
+# Nur beim ersten Lauf oder nach Änderungen: true, danach false
+SYNC_FORCE=false

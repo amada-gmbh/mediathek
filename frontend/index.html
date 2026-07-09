@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>Broschüren-Mediathek</title>
+  <link rel="stylesheet" href="css/style.css?v=41">
+</head>
+<body class="page-body">
+
+  <div id="loader" class="loader-overlay">
+    <div class="loader-ring"></div>
+    <p class="loader-text" data-i18n="loading">Broschüren werden geladen …</p>
+  </div>
+
+  <div id="app" class="kiosk-shell hidden">
+    <header class="kiosk-header">
+      <div class="kiosk-header__brand">
+        <img
+          id="company-logo"
+          src="assets/AMADA_80th_logo_White.svg"
+          alt="AMADA"
+          class="company-logo"
+          width="150"
+          height="33"
+        >
+        <div class="kiosk-header__titles">
+          <h1 class="kiosk-title" data-i18n="title">Broschüren-Mediathek</h1>
+          <p class="kiosk-subtitle" data-i18n="subtitle">Berühren zum Auswählen</p>
+        </div>
+      </div>
+      <div id="lang-switcher" class="scroll-x-touch" role="group" aria-label="Sprache wählen"></div>
+    </header>
+
+    <div class="kiosk-body">
+      <div class="kiosk-main">
+      <div class="kiosk-filters-bar">
+        <nav id="category-nav" class="kiosk-pad-x" aria-label="Kategorien">
+          <div id="category-chips"></div>
+        </nav>
+
+        <div class="kiosk-pad-x kiosk-pad-b filters-toolbar">
+          <div id="view-mode-switcher" class="view-mode-switcher" role="group" aria-label="Ansicht wählen">
+            <button type="button" class="view-mode-btn active" data-view="grid" data-i18n="view_grid">Kacheln</button>
+            <button type="button" class="view-mode-btn" data-view="table" data-i18n="view_table">Link-Tabelle</button>
+          </div>
+          <div class="search-wrap">
+            <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <input
+              id="search-input"
+              type="search"
+              inputmode="search"
+              autocomplete="off"
+              class="search-input"
+              data-i18n-placeholder="search"
+              placeholder="Broschüre suchen …"
+            >
+          </div>
+        </div>
+      </div>
+
+      <p id="scroll-hint" class="scroll-hint hidden" aria-hidden="true" data-i18n="scroll_hint">Nach unten wischen für weitere Broschüren</p>
+
+      <main id="brochure-grid" class="brochure-grid kiosk-pad-x" role="list"></main>
+
+      <div id="brochure-table-wrap" class="brochure-table-wrap kiosk-pad-x hidden" hidden>
+        <table id="brochure-table" class="brochure-table">
+          <thead>
+            <tr>
+              <th scope="col" data-i18n="col_product">Produkt</th>
+              <th scope="col" data-i18n="col_technology">Technologie</th>
+              <th scope="col" data-i18n="col_link_de">Link DE</th>
+              <th scope="col" data-i18n="col_link_en">Link EN</th>
+              <th scope="col" data-i18n="col_link_nl">Link NL</th>
+            </tr>
+          </thead>
+          <tbody id="brochure-table-body"></tbody>
+        </table>
+      </div>
+      </div>
+
+      <div id="kiosk-scroll-rail" class="kiosk-scroll-rail hidden" aria-hidden="true">
+        <button type="button" id="kiosk-scroll-up" class="kiosk-scroll-btn" data-i18n-aria="scroll_up" aria-label="Nach oben">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/>
+          </svg>
+        </button>
+        <button type="button" id="kiosk-scroll-down" class="kiosk-scroll-btn" data-i18n-aria="scroll_down" aria-label="Nach unten">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <footer class="kiosk-footer">
+      <span id="sync-info" class="footer-text">—</span>
+    </footer>
+  </div>
+
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-backdrop" data-action="close"></div>
+    <div class="modal-panel modal-panel--viewer">
+      <div class="modal-toolbar">
+        <div class="modal-toolbar-info">
+          <p id="modal-category" class="modal-category-label"></p>
+          <h2 id="modal-title" class="modal-title-text"></h2>
+        </div>
+        <div id="modal-lang-switcher" class="modal-toolbar-langs" role="group" aria-label="PDF-Sprache"></div>
+        <div class="modal-tabs modal-tabs--compact">
+          <button class="modal-tab active" data-tab="viewer" data-i18n="tab_viewer">Ansehen</button>
+          <button class="modal-tab" data-tab="qr" data-i18n="tab_qr">QR</button>
+        </div>
+        <a id="download-link" href="#" download class="download-link-compact" title="PDF herunterladen">
+          <svg class="icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+          </svg>
+          <span class="download-link-compact__label" data-i18n="download">PDF</span>
+        </a>
+        <button id="modal-close" class="modal-close-btn" aria-label="Schließen" data-action="close">
+          <svg class="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <div id="tab-viewer" class="modal-body modal-body--viewer">
+        <div class="pdf-viewer-body">
+          <div id="pdf-viewer-wrap" class="pdf-viewer-wrap">
+            <div id="pdf-scroll" class="pdf-scroll"></div>
+            <p id="pdf-loading" class="pdf-loading hidden" data-i18n="pdf_loading">PDF wird geladen …</p>
+          </div>
+          <div id="pdf-scroll-rail" class="kiosk-scroll-rail hidden" aria-hidden="true">
+            <button type="button" id="pdf-scroll-up" class="kiosk-scroll-btn" data-i18n-aria="scroll_up" aria-label="Nach oben">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/>
+              </svg>
+            </button>
+            <button type="button" id="pdf-scroll-down" class="kiosk-scroll-btn" data-i18n-aria="scroll_down" aria-label="Nach unten">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-qr" class="modal-body modal-body--qr hidden">
+        <p class="qr-hint-text" data-i18n="qr_hint">Scannen Sie den Code, um die Broschüre auf der Website des Anbieters zu öffnen.</p>
+        <div id="qrcode" class="qr-container"></div>
+        <div class="modal-source-link">
+          <p id="qr-url" class="modal-source-url"></p>
+          <button type="button" id="modal-copy-link" class="modal-copy-link-btn" disabled>
+            <svg class="modal-copy-link-btn__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+            </svg>
+            <span data-i18n="copy_link">Original-Link kopieren</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="screensaver" class="screensaver hidden" aria-hidden="true">
+    <video id="screensaver-video" class="screensaver-video" playsinline muted loop preload="auto"></video>
+    <p class="screensaver-hint" data-i18n="screensaver_hint">Berühren zum Fortfahren</p>
+  </div>
+
+  <div id="empty-state" class="empty-state hidden">
+    <svg class="empty-state__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+    </svg>
+    <p class="empty-state__text" data-i18n="empty">Keine Broschüren verfügbar. Sync läuft …</p>
+    <p id="empty-state-detail" class="empty-state__detail" aria-live="polite"></p>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/vendor/qrcode.min.js?v=34"></script>
+  <script src="js/app.js?v=34"></script>
+</body>
+</html>

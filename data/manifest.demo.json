@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "last_sync": null,
+  "source_base_url": "",
+  "supported_languages": ["de"],
+  "source": "demo",
+  "categories": [
+    {
+      "id": "abkanten",
+      "labels": { "de": "Abkanten", "en": "Bending", "nl": "Kanten" },
+      "count": 1
+    },
+    {
+      "id": "faserlaser-schneiden",
+      "labels": { "de": "Faserlaser", "en": "Fiber Laser", "nl": "Vezellaser" },
+      "count": 1
+    }
+  ],
+  "brochures": [
+    {
+      "id": "demo-hrb-atc",
+      "title": "HRB-ATC Serie (Demo)",
+      "category": "abkanten",
+      "thumbnail": null,
+      "languages": ["de"],
+      "files": { "de": "/pdfs/demo-test_de.pdf" }
+    },
+    {
+      "id": "demo-ensis",
+      "title": "ENSIS Faserlaser (Demo)",
+      "category": "faserlaser-schneiden",
+      "thumbnail": null,
+      "languages": ["de"],
+      "files": { "de": "/pdfs/demo-test_de.pdf" }
+    }
+  ]
+}

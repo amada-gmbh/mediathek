@@ -1,0 +1,4 @@
+Broschüren-Mediathek – Open-Source Touch-Kiosk (Docker).
+
+Branding und Crawl-Quellen werden per Umgebungsvariablen konfiguriert
+(COMPANY_NAME, SOURCE_BASE_URL, INDEX_*).

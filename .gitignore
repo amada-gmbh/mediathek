@@ -1,0 +1,19 @@
+# Umgebung
+.env
+
+# Sync-Daten (werden im Container generiert)
+pdfs/*
+!pdfs/.gitkeep
+!pdfs/demo-test_de.pdf
+data/manifest.json
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
