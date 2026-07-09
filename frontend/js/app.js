@@ -72,6 +72,11 @@
       copy_short: 'Link kopieren',
       link_missing: '—',
       table_empty: 'Keine Original-Links für die Auswahl.',
+      lang_config_btn: 'Sprachen',
+      lang_config_title: 'Sprachen verwalten',
+      lang_config_note: 'Sprache aktivieren/deaktivieren. Quelle je Sprache ist fest auf AMADA EU hinterlegt.',
+      lang_config_save: 'Speichern',
+      lang_switcher_label: 'Sprache wählen',
     },
     en: {
       loading: 'Loading brochures …',
@@ -108,6 +113,11 @@
       copy_short: 'Copy link',
       link_missing: '—',
       table_empty: 'No original links for this filter.',
+      lang_config_btn: 'Languages',
+      lang_config_title: 'Manage languages',
+      lang_config_note: 'Enable/disable languages. Each language source is fixed to AMADA EU.',
+      lang_config_save: 'Save',
+      lang_switcher_label: 'Choose language',
     },
     nl: {
       loading: 'Brochures laden …',
@@ -132,6 +142,11 @@
       scroll_hint: 'Veeg omlaag voor meer brochures',
       scroll_up: 'Omhoog',
       scroll_down: 'Omlaag',
+      lang_config_btn: 'Talen',
+      lang_config_title: 'Talen beheren',
+      lang_config_note: 'Taal in-/uitschakelen. Elke taalbron is vast ingesteld op AMADA EU.',
+      lang_config_save: 'Opslaan',
+      lang_switcher_label: 'Taal kiezen',
     },
     fr: {
       loading: 'Chargement des brochures …',
@@ -156,6 +171,11 @@
       scroll_hint: 'Faites défiler vers le bas pour plus de brochures',
       scroll_up: 'Défiler vers le haut',
       scroll_down: 'Défiler vers le bas',
+      lang_config_btn: 'Langues',
+      lang_config_title: 'Gérer les langues',
+      lang_config_note: 'Activer/désactiver les langues. Chaque source est fixée sur AMADA EU.',
+      lang_config_save: 'Enregistrer',
+      lang_switcher_label: 'Choisir la langue',
     },
     it: {
       loading: 'Caricamento brochure …',
@@ -180,6 +200,11 @@
       scroll_hint: 'Scorri verso il basso per altre brochure',
       scroll_up: 'Scorri in alto',
       scroll_down: 'Scorri in basso',
+      lang_config_btn: 'Lingue',
+      lang_config_title: 'Gestisci lingue',
+      lang_config_note: 'Attiva/disattiva le lingue. Ogni sorgente è fissata su AMADA EU.',
+      lang_config_save: 'Salva',
+      lang_switcher_label: 'Scegli la lingua',
     },
     pl: {
       loading: 'Ładowanie broszur …',
@@ -204,6 +229,11 @@
       scroll_hint: 'Przesuń w dół, aby zobaczyć więcej broszur',
       scroll_up: 'Przewiń w górę',
       scroll_down: 'Przewiń w dół',
+      lang_config_btn: 'Języki',
+      lang_config_title: 'Zarządzaj językami',
+      lang_config_note: 'Włącz/wyłącz języki. Każde źródło jest ustawione na AMADA EU.',
+      lang_config_save: 'Zapisz',
+      lang_switcher_label: 'Wybierz język',
     },
     hu: {
       loading: 'Brochúrák betöltése …',
@@ -228,6 +258,11 @@
       scroll_hint: 'Görgessen lefelé további brosúrákhoz',
       scroll_up: 'Görgetés fel',
       scroll_down: 'Görgetés le',
+      lang_config_btn: 'Nyelvek',
+      lang_config_title: 'Nyelvek kezelése',
+      lang_config_note: 'Nyelvek engedélyezése/letiltása. Minden forrás az AMADA EU-hoz van kötve.',
+      lang_config_save: 'Mentés',
+      lang_switcher_label: 'Nyelv kiválasztása',
     },
     ro: {
       loading: 'Broșurile se încarcă …',
@@ -254,6 +289,11 @@
       scroll_hint: 'Glisați în jos pentru mai multe broșuri',
       scroll_up: 'Derulați în sus',
       scroll_down: 'Derulați în jos',
+      lang_config_btn: 'Limbi',
+      lang_config_title: 'Gestionare limbi',
+      lang_config_note: 'Activați/dezactivați limbile. Fiecare sursă este fixată pe AMADA EU.',
+      lang_config_save: 'Salvare',
+      lang_switcher_label: 'Alege limba',
     },
     dk: {
       loading: 'Brochurer indlæses …',
@@ -280,6 +320,11 @@
       scroll_hint: 'Swipe ned for flere brochurer',
       scroll_up: 'Rul op',
       scroll_down: 'Rul ned',
+      lang_config_btn: 'Sprog',
+      lang_config_title: 'Administrer sprog',
+      lang_config_note: 'Aktiver/deaktiver sprog. Hver kilde er sat til AMADA EU.',
+      lang_config_save: 'Gem',
+      lang_switcher_label: 'Vælg sprog',
     },
     no: {
       loading: 'Laster brosjyrer …',
@@ -306,6 +351,11 @@
       scroll_hint: 'Sveip ned for flere brosjyrer',
       scroll_up: 'Rull opp',
       scroll_down: 'Rull ned',
+      lang_config_btn: 'Språk',
+      lang_config_title: 'Administrer språk',
+      lang_config_note: 'Aktiver/deaktiver språk. Hver kilde er satt til AMADA EU.',
+      lang_config_save: 'Lagre',
+      lang_switcher_label: 'Velg språk',
     },
     se: {
       loading: 'Laddar broschyrer …',
@@ -332,6 +382,11 @@
       scroll_hint: 'Svep nedåt för fler broschyrer',
       scroll_up: 'Scrolla upp',
       scroll_down: 'Scrolla ner',
+      lang_config_btn: 'Språk',
+      lang_config_title: 'Hantera språk',
+      lang_config_note: 'Aktivera/inaktivera språk. Varje källa är inställd på AMADA EU.',
+      lang_config_save: 'Spara',
+      lang_switcher_label: 'Välj språk',
     },
     tr: {
       loading: 'Broşürler yükleniyor …',
@@ -358,6 +413,11 @@
       scroll_hint: 'Daha fazla broşür için aşağı kaydırın',
       scroll_up: 'Yukarı kaydır',
       scroll_down: 'Aşağı kaydır',
+      lang_config_btn: 'Diller',
+      lang_config_title: 'Dilleri yönet',
+      lang_config_note: 'Dilleri etkinleştir/devre dışı bırak. Her kaynak AMADA EU olarak ayarlanmıştır.',
+      lang_config_save: 'Kaydet',
+      lang_switcher_label: 'Dil seçin',
     },
   };
 
@@ -368,14 +428,12 @@
   };
 
   function detectInitialLang() {
-    // 1. URL-Parameter hat höchste Priorität: ?lang=en
     const urlLang = new URLSearchParams(window.location.search).get('lang');
     if (urlLang) return urlLang.toLowerCase().slice(0, 2);
-    // 2. Browser-/System-Sprache automatisch erkennen
-    const browserLang = (navigator.language || 'de').toLowerCase().slice(0, 2);
-    // Sonderfall: 'sv' (Schwedisch) → 'se'
+    const browserLang = (navigator.language || 'en').toLowerCase().slice(0, 2);
     if (browserLang === 'sv') return 'se';
-    return browserLang;
+    if (ALL_LANGS.includes(browserLang)) return browserLang;
+    return 'en';
   }
 
   const state = {
@@ -432,7 +490,7 @@
       }
     }
     if (!getActiveLangs().includes(state.uiLang)) {
-      state.uiLang = getActiveLangs()[0] || 'de';
+      state.uiLang = getActiveLangs()[0] || 'en';
     }
   }
 
@@ -459,7 +517,7 @@
   let toastTimer = null;
 
   function t(key) {
-    return (I18N[state.uiLang] || I18N.de)[key] || key;
+    return (I18N[state.uiLang] || I18N.en)[key] || key;
   }
 
   function applyI18n() {
@@ -481,6 +539,16 @@
       const label = copyBtn.querySelector('[data-i18n="copy_link"]');
       if (label) label.textContent = t('copy_link');
     }
+    const lcOpen = $('#lang-config-open');
+    if (lcOpen) lcOpen.textContent = t('lang_config_btn');
+    const lcTitle = $('#lang-config-title');
+    if (lcTitle) lcTitle.textContent = t('lang_config_title');
+    const lcNote = $('.lang-config-note');
+    if (lcNote) lcNote.textContent = t('lang_config_note');
+    const lcSave = $('#lang-config-save');
+    if (lcSave) lcSave.textContent = t('lang_config_save');
+    const langSwitcher = $('#lang-switcher');
+    if (langSwitcher) langSwitcher.setAttribute('aria-label', t('lang_switcher_label'));
   }
 
   function showToast(message) {
@@ -769,7 +837,7 @@
   }
 
   function getCategoryLabel(cat) {
-    return (cat.labels && cat.labels[state.uiLang]) || cat.labels?.de || cat.id;
+    return (cat.labels && cat.labels[state.uiLang]) || cat.labels?.en || cat.id;
   }
 
   function getBrochureTitle(brochure, lang = state.uiLang) {
@@ -1516,7 +1584,7 @@
     const date = new Date(state.manifest.last_sync);
     const company = state.branding.companyName;
     const suffix = company ? ` · © ${company}` : '';
-    el.textContent = `${t('sync_label')}: ${date.toLocaleString(LOCALE_MAP[state.uiLang] || 'de-DE')} · Release ${RELEASE_VERSION}${suffix}`;
+    el.textContent = `${t('sync_label')}: ${date.toLocaleString(LOCALE_MAP[state.uiLang] || 'en-GB')} · Release ${RELEASE_VERSION}${suffix}`;
   }
 
   function render() {
