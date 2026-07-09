@@ -1363,8 +1363,7 @@
     if (!list) return;
     const activeSet = new Set(getActiveLangs());
     list.innerHTML = '';
-    const available = state.availableLangs.length ? state.availableLangs : ALL_LANGS;
-    available.forEach((lang) => {
+    ALL_LANGS.forEach((lang) => {
       const row = document.createElement('label');
       row.className = 'lang-config-item' + (activeSet.has(lang) ? '' : ' is-disabled');
       row.dataset.lang = lang;
@@ -1400,10 +1399,9 @@
       .map((row) => row.dataset.lang)
       .filter(Boolean);
 
-    const available = state.availableLangs.length ? state.availableLangs : ALL_LANGS;
-    state.enabledLangs = selected.filter((lang) => available.includes(lang));
+    state.enabledLangs = selected.filter((lang) => ALL_LANGS.includes(lang));
     if (!state.enabledLangs.length) {
-      state.enabledLangs = [available[0]];
+      state.enabledLangs = [ALL_LANGS[0]];
     }
     if (!state.enabledLangs.includes(state.uiLang)) {
       state.uiLang = state.enabledLangs[0];
